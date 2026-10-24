@@ -1,0 +1,35 @@
+name: new_block
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+  freezed_annotation: ^3.1.0 
+  collection: ^1.19.1
+  http: ^1.6.0
+  get_it: ^9.3.0
+  bloc_concurrency: ^0.3.0
+  rxdart: ^0.28.0
+  go_router: ^18.1.0
+  shared_preferences: ^2.5.6
+  cached_network_image: ^4.0.4
+  dio: ^5.11.1
+  fpdart: ^1.2.0
+  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  bloc_test: ^10.0.0     
+  mocktail: ^1.0.4       
+  build_runner: ^2.4.13  
+  freezed: ^4.0.1   
+flutter:
+  uses-material-design: true

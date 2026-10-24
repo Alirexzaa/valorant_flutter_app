@@ -1,0 +1,86 @@
+{
+  "android/app/build.gradle.kts": {
+    "mtime": 1791810307.304746,
+    "seen": 1791934115.9589381,
+    "ast_hash": "37cccbdce9db220d372d92d186d3b6be",
+    "semantic_hash": "37cccbdce9db220d372d92d186d3b6be"
+  },
+  "android/app/src/main/kotlin/com/example/new_block/MainActivity.kt": {
+    "mtime": 1791810307.304746,
+    "seen": 1791934115.9589381,
+    "ast_hash": "d606324a2404a26501563574582b33a1",
+    "semantic_hash": "d606324a2404a26501563574582b33a1"
+  },
+  "android/build.gradle.kts": {
+    "mtime": 1791810307.304746,
+    "seen": 1791934115.9589381,
+    "ast_hash": "803fe22651fbe96ed401eb0b66a492d1",
+    "semantic_hash": "803fe22651fbe96ed401eb0b66a492d1"
+  },
+  "android/settings.gradle.kts": {
+    "mtime": 1791810307.329242,
+    "seen": 1791934115.9589381,
+    "ast_hash": "a34513cd87cef855195771f6a457a218",
+    "semantic_hash": "a34513cd87cef855195771f6a457a218"
+  },
+  "lib/counter/counter_cubit.dart": {
+    "mtime": 1791811664.1609492,
+    "seen": 1791934115.9589381,
+    "ast_hash": "9ae3422b1f78affcf32ed958936f3930",
+    "semantic_hash": "9ae3422b1f78affcf32ed958936f3930"
+  },
+  "lib/counter/counter_page.dart": {
+    "mtime": 1791810641.0208294,
+    "seen": 1791934115.9589381,
+    "ast_hash": "a3698c8eb0be6482b6fc1f42dfd7d280",
+    "semantic_hash": "a3698c8eb0be6482b6fc1f42dfd7d280"
+  },
+  "lib/main.dart": {
+    "mtime": 1791908219.4447284,
+    "seen": 1791934115.9589381,
+    "ast_hash": "fb56c71612ef230282fa3641a5d6c415",
+    "semantic_hash": "fb56c71612ef230282fa3641a5d6c415"
+  },
+  "lib/todo/todo_cubit.dart": {
+    "mtime": 1791822609.5494175,
+    "seen": 1791934115.9589381,
+    "ast_hash": "e8a3f4b68a5b3981bd74dd0c812cb8f8",
+    "semantic_hash": "e8a3f4b68a5b3981bd74dd0c812cb8f8"
+  },
+  "lib/todo/todo_page.dart": {
+    "mtime": 1791818239.5411634,
+    "seen": 1791934115.9589381,
+    "ast_hash": "51394566ba0f155f0efb0b3e2027da44",
+    "semantic_hash": "51394566ba0f155f0efb0b3e2027da44"
+  },
+  "lib/todo/todo_remote_cubit.dart": {
+    "mtime": 1791908395.1107798,
+    "seen": 1791934115.9589381,
+    "ast_hash": "f6244249f38a9dbfa85639002bca6077",
+    "semantic_hash": "f6244249f38a9dbfa85639002bca6077"
+  },
+  "lib/todo/todo_repository.dart": {
+    "mtime": 1791908389.8228972,
+    "seen": 1791934115.9589381,
+    "ast_hash": "0a64281f4252719d8a78d2478c23fb37",
+    "semantic_hash": "0a64281f4252719d8a78d2478c23fb37"
+  },
+  "test/todo_cubit_test.dart": {
+    "mtime": 1791823353.86523,
+    "seen": 1791934115.9589381,
+    "ast_hash": "dd96e48c9a67779a6ba9650d2f52e8cc",
+    "semantic_hash": "dd96e48c9a67779a6ba9650d2f52e8cc"
+  },
+  "test/todo_remote_cubit_test.dart": {
+    "mtime": 1791927715.4346464,
+    "seen": 1791934115.9589381,
+    "ast_hash": "c29de63b57d089895ad6fabfc30e0c5e",
+    "semantic_hash": "c29de63b57d089895ad6fabfc30e0c5e"
+  },
+  "web/manifest.json": {
+    "mtime": 1791810307.3541982,
+    "seen": 1791934115.9589381,
+    "ast_hash": "48395e61afcc8cbfe0065dece75fd33c",
+    "semantic_hash": "48395e61afcc8cbfe0065dece75fd33c"
+  }
+}
