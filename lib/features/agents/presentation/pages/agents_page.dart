@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:new_block/core/widgets/shimmer_loading_widget.dart';
 
 import 'package:new_block/core/injection_container.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
@@ -53,9 +54,7 @@ class AgentsPage extends StatelessWidget {
               builder: (context, state) {
                 return switch (state) {
                   AgentsInitial() => const Center(child: Text('آماده شروع...')),
-                  AgentsLoading() => const Center(
-                    child: CircularProgressIndicator(color: Colors.redAccent),
-                  ),
+                  AgentsLoading() => const ShimmerLoadingWidget(),
                   AgentsSuccess(agents: final agents) => RefreshIndicator(
                     color: Colors.redAccent,
                     onRefresh: () async {
