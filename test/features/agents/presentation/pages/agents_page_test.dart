@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:new_block/core/widgets/shimmer_loading_widget.dart';
 
 import 'package:new_block/features/agents/presentation/pages/agents_page.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
@@ -48,7 +49,7 @@ void main() {
 
       await tester.pumpWidget(const MaterialApp(home: AgentsPage()));
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(ShimmerLoadingWidget), findsOneWidget);
     });
 
     // تست ۲: حالت Success

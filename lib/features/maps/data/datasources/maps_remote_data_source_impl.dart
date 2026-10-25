@@ -1,5 +1,6 @@
+import 'package:dio/dio.dart';
+import 'package:new_block/core/errors/failures.dart';
 import 'package:new_block/core/network/dio_client.dart';
-
 import 'package:new_block/features/maps/data/datasources/maps_remote_data_source.dart';
 import 'package:new_block/features/maps/data/models/map_model.dart';
 
@@ -10,15 +11,16 @@ class MapsRemoteDataSourceImpl implements MapsRemoteDataSource {
 
   @override
   Future<List<MapModel>> getMaps() async {
-    // آدرس API والورانت
-    final response = await dioClient.dio.get('/maps');
+    try {
+      final response = await dioClient.dio.get('/maps');
 
-    if (response.statusCode == 200) {
-      final data = response.data; // ← نیازی به json.decode(response.body) نیست
+      final data = response.data;
       final List results = data['data'];
-
       return results.map((json) => MapModel.fromJson(json)).toList();
-    } else {
+    } on DioException catch (e) {
+      if (e.error is Failure) {
+        throw Exception((e.error as Failure).message);
+      }
       throw Exception('Failed to load maps');
     }
   }

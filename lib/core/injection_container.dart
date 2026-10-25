@@ -6,7 +6,7 @@ import 'package:new_block/features/maps/data/datasources/maps_remote_data_source
 import 'package:new_block/features/maps/data/datasources/maps_remote_data_source_impl.dart';
 import 'package:new_block/features/maps/data/repositories/maps_repository_impl.dart';
 import 'package:new_block/features/maps/domain/repositories/maps_repository.dart';
-import 'package:new_block/features/maps/domain/usecase/get_maps_usecase.dart';
+import 'package:new_block/features/maps/domain/usecases/get_maps_usecase.dart';
 import 'package:new_block/features/maps/presentation/bloc/maps_bloc.dart';
 import 'package:new_block/features/weapons/data/datasources/weapons_remote_data_source.dart';
 import 'package:new_block/features/weapons/data/datasources/weapons_remote_data_source_impl.dart';

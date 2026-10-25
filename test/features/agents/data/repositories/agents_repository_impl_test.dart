@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:new_block/core/errors/failures.dart';
 
 import 'package:new_block/features/agents/data/datasources/agents_local_data_source.dart';
 import 'package:new_block/features/agents/data/datasources/agents_remote_data_source.dart';
 import 'package:new_block/features/agents/data/models/agent_model.dart';
 import 'package:new_block/features/agents/data/repositories/agents_repository_impl.dart';
 
-// ۱. ساخت Mock برای DataSourceها (چون قرار نیست واقعاً به اینترنت یا دیتابیس وصل بشیم)
 class MockAgentsRemoteDataSource extends Mock
     implements AgentsRemoteDataSource {}
 
@@ -17,7 +17,6 @@ void main() {
   late MockAgentsLocalDataSource mockLocalDataSource;
   late AgentsRepositoryImpl repository;
 
-  // داده‌های فیک برای تست
   const tAgents = [
     AgentModel(id: '1', name: 'Jett', role: 'Duelist', imageUrl: 'url1'),
     AgentModel(id: '2', name: 'Omen', role: 'Controller', imageUrl: 'url2'),
@@ -27,7 +26,6 @@ void main() {
     mockRemoteDataSource = MockAgentsRemoteDataSource();
     mockLocalDataSource = MockAgentsLocalDataSource();
 
-    // Repository رو با Mockها می‌سازیم
     repository = AgentsRepositoryImpl(
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
@@ -36,59 +34,66 @@ void main() {
 
   group('AgentsRepositoryImpl', () {
     // ═══════════════════════════════════════════
-    // تست ۱: وقتی API موفق میشه، باید دیتا رو کش کنه
+    // تست ۱: وقتی API موفق میشه
     // ═══════════════════════════════════════════
     test('should return remote data when the call to remote data source is successful', () async {
-      // Arrange
       when(() => mockRemoteDataSource.getAgents())
           .thenAnswer((_) async => tAgents);
       when(() => mockLocalDataSource.cacheAgents(tAgents))
           .thenAnswer((_) async => {});
 
-      // Act
       final result = await repository.getAgents();
 
-      // Assert
-      expect(result, tAgents);
-      // چک میکنیم که آیا دیتا کش شده یا نه
+      // ✅ به جای expect ساده، از fold استفاده میکنیم تا ببینیم Right برگشته
+      result.fold((l) => fail('Should return Right (Success)'), (r) {
+        expect(r.length, 2);
+        expect(r.first.id, '1');
+      });
+
       verify(() => mockRemoteDataSource.getAgents()).called(1);
       verify(() => mockLocalDataSource.cacheAgents(tAgents)).called(1);
     });
 
     // ═══════════════════════════════════════════
-    // تست ۲: وقتی API خطا میده، باید از کش بخونه
+    // تست ۲: وقتی API خطا میده ولی کش داریم
     // ═══════════════════════════════════════════
     test('should return locally cached data when remote data source throws an error', () async {
-      // Arrange
       when(() => mockRemoteDataSource.getAgents())
           .thenThrow(Exception('No Internet'));
       when(() => mockLocalDataSource.getLastAgents())
           .thenAnswer((_) async => tAgents);
 
-      // Act
       final result = await repository.getAgents();
 
-      // Assert
-      expect(result, tAgents);
+      // ✅ باید Right برگرده (چون از کش خونده)
+      result.fold(
+        (l) => fail('Should return Right (Cached Data)'),
+        (r) => expect(r.length, 2),
+      );
+
       verify(() => mockRemoteDataSource.getAgents()).called(1);
       verify(() => mockLocalDataSource.getLastAgents()).called(1);
     });
 
     // ═══════════════════════════════════════════
-    // تست ۳: وقتی API خطا میده و کش هم خالیه، باید Exception بده
+    // تست ۳: وقتی API و کش هر دو خطا میدن
     // ═══════════════════════════════════════════
-    test('should throw an exception when remote and local data sources both throw errors', () async {
-      // Arrange
-      when(() => mockRemoteDataSource.getAgents())
-          .thenThrow(Exception('No Internet'));
-      when(() => mockLocalDataSource.getLastAgents())
-          .thenThrow(Exception('No Cache'));
+    test(
+      'should return Left(CacheFailure) when remote and local both fail',
+      () async {
+        when(() => mockRemoteDataSource.getAgents())
+            .thenThrow(Exception('No Internet'));
+        when(() => mockLocalDataSource.getLastAgents())
+            .thenThrow(Exception('No Cache'));
 
-      // Act
-      final call = repository.getAgents;
+        final result = await repository.getAgents();
 
-      // Assert
-      expect(() => call(), throwsA(isA<Exception>()));
-    });
+        // ✅ باید Left برگرده (دیگه throw نمیکنه)
+        result.fold(
+          (l) => expect(l, isA<CacheFailure>()),
+          (r) => fail('Should return Left (Failure)'),
+        );
+      },
+    );
   });
 }

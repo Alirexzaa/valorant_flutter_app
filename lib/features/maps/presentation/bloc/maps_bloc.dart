@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:new_block/features/maps/domain/usecase/get_maps_usecase.dart';
+import 'package:new_block/features/maps/domain/usecases/get_maps_usecase.dart';
 import 'package:new_block/features/maps/presentation/bloc/maps_event.dart';
 import 'package:new_block/features/maps/presentation/bloc/maps_state.dart';
 
