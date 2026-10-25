@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:new_block/core/network/dio_client.dart';
 import 'package:new_block/features/agents/data/models/agent_model.dart';
 import 'package:new_block/features/agents/data/datasources/agents_remote_data_source.dart';
+import 'package:new_block/core/errors/failures.dart';
 
 class AgentsRemoteDataSourceImpl implements AgentsRemoteDataSource {
   final DioClient dioClient;
@@ -9,18 +11,20 @@ class AgentsRemoteDataSourceImpl implements AgentsRemoteDataSource {
 
   @override
   Future<List<AgentModel>> getAgents() async {
-    // استفاده از Dio به جای http
-    final response = await dioClient.dio.get(
-      '/agents',
-      queryParameters: {'isPlayableCharacter': true}, // پارامترهای URL
-    );
+    try {
+      final response = await dioClient.dio.get(
+        '/agents',
+        queryParameters: {'isPlayableCharacter': true},
+      );
 
-    if (response.statusCode == 200) {
-      final data = response.data; // توی Dio دیگه نیازی به json.decode نیست
+      final data = response.data;
       final List results = data['data'];
-
       return results.map((json) => AgentModel.fromJson(json)).toList();
-    } else {
+    } on DioException catch (e) {
+      // ⬇️ اینجا خطاهای Dio رو با پیام‌های دقیق‌تر پرتاب می‌کنیم
+      if (e.error is Failure) {
+        throw Exception((e.error as Failure).message);
+      }
       throw Exception('Failed to load agents');
     }
   }

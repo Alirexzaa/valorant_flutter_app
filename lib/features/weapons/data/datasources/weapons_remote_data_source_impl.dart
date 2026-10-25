@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-
+import 'package:new_block/core/errors/failures.dart';
 import 'package:new_block/core/network/dio_client.dart';
-import 'package:new_block/features/weapons/data/models/weapon_model.dart';
 import 'package:new_block/features/weapons/data/datasources/weapons_remote_data_source.dart';
+import 'package:new_block/features/weapons/data/models/weapon_model.dart';
 
 class WeaponsRemoteDataSourceImpl implements WeaponsRemoteDataSource {
   final DioClient dioClient;
@@ -12,14 +12,16 @@ class WeaponsRemoteDataSourceImpl implements WeaponsRemoteDataSource {
   @override
   Future<List<WeaponModel>> getWeapons() async {
     try {
-      // جادوی Dio: دیگه لازم نیست URL کامل بنویسیم (baseUrl رو توی DioClient تنظیم کردیم)
       final response = await dioClient.dio.get('/weapons');
 
-      final List results = response.data['data'];
+      final data = response.data;
+      final List results = data['data'];
       return results.map((json) => WeaponModel.fromJson(json)).toList();
     } on DioException catch (e) {
-      // مدیریت خطای اختصاصی Dio
-      throw Exception(e.message ?? 'Failed to load weapons');
+      if (e.error is Failure) {
+        throw Exception((e.error as Failure).message);
+      }
+      throw Exception('Failed to load weapons');
     }
   }
 }
