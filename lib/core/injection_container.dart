@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:http/http.dart' as http;
 import 'package:new_block/core/network/dio_client.dart';
 import 'package:new_block/features/maps/data/datasources/maps_local_data_source.dart';
 import 'package:new_block/features/maps/data/datasources/maps_local_data_source_impl.dart';
@@ -47,15 +46,12 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<AgentsRemoteDataSource>(
-    () => AgentsRemoteDataSourceImpl(sl()),
+    () => AgentsRemoteDataSourceImpl(dioClient: sl()), // ← تغییر کرد
   );
 
   sl.registerLazySingleton<AgentsLocalDataSource>(
     () => AgentsLocalDataSourceImpl(sharedPreferences: sl()),
   );
-
-  // External
-  sl.registerLazySingleton(() => http.Client());
 
   // ═══════════════════════════════════════════
   // Weapons Feature
@@ -91,7 +87,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetMapsUseCase(sl()));
 
   sl.registerLazySingleton<MapsRepository>(
-    () => MapsRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()),
+    () => MapsRepositoryImpl(
+      remoteDataSource: sl<MapsRemoteDataSource>(),
+      localDataSource: sl<MapsLocalDataSource>(),
+    ),
   );
 
   sl.registerLazySingleton<MapsRemoteDataSource>(

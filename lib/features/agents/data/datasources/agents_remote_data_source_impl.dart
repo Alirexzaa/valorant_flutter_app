@@ -1,24 +1,22 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
-
+import 'package:new_block/core/network/dio_client.dart';
 import 'package:new_block/features/agents/data/models/agent_model.dart';
 import 'package:new_block/features/agents/data/datasources/agents_remote_data_source.dart';
 
 class AgentsRemoteDataSourceImpl implements AgentsRemoteDataSource {
-  final http.Client client;
+  final DioClient dioClient;
 
-  AgentsRemoteDataSourceImpl(this.client);
+  AgentsRemoteDataSourceImpl({required this.dioClient}); // ← تغییر کرد
 
   @override
   Future<List<AgentModel>> getAgents() async {
-    // آدرس API والورانت
-    final response = await client.get(
-      Uri.parse('https://valorant-api.com/v1/agents?isPlayableCharacter=true'),
+    // استفاده از Dio به جای http
+    final response = await dioClient.dio.get(
+      '/agents',
+      queryParameters: {'isPlayableCharacter': true}, // پارامترهای URL
     );
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = response.data; // توی Dio دیگه نیازی به json.decode نیست
       final List results = data['data'];
 
       return results.map((json) => AgentModel.fromJson(json)).toList();
