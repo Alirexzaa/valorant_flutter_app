@@ -45,6 +45,11 @@ class _AgentsPageState extends State<AgentsPage> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.star, color: Colors.white),
+            onPressed: () => context.push('/favorites'),
+            tooltip: 'علاقه‌مندی‌ها',
+          ),
+          IconButton(
             icon: const Icon(Icons.gps_fixed, color: Colors.white),
             onPressed: () => context.push('/weapons'),
             tooltip: 'سلاح‌ها',

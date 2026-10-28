@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:new_block/features/agents/domain/entities/agent.dart';
+import 'package:new_block/features/agents/presentation/pages/favorites_page.dart';
 import 'package:new_block/features/auth/presentation/bloc/pages/auth_page.dart';
 import 'package:new_block/features/maps/presentation/bloc/pages/maps_page.dart';
 import 'package:new_block/features/weapons/domain/entities/weapon.dart';
@@ -30,6 +31,10 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(path: '/maps', builder: (context, state) => const MapsPage()),
+    GoRoute(
+      path: '/favorites',
+      builder: (context, state) => const FavoritesPage(),
+    ),
   ],
   // ✅ این بخش جادویی است: اگر کاربر لاگین نکرده باشد و بخواهد وارد صفحه‌ای شود، به لاگین هدایتش می‌کند
   redirect: (context, state) {
