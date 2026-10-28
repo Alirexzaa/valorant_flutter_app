@@ -32,9 +32,7 @@ class AgentsBloc extends Bloc<AgentsEvent, AgentsState> {
     );
 
     on<ToggleFavoriteEvent>((event, emit) async {
-      print('--- Toggle Favorite Started ---');
-
-      // ۱. تلاش برای تغییر وضعیت در فایربیس
+      // ۱. آپدیت دیتابیس ابری
       final toggleResult = await toggleFavoriteUseCase(
         event.agentId,
         event.isFavorite,
@@ -45,21 +43,23 @@ class AgentsBloc extends Bloc<AgentsEvent, AgentsState> {
           print('❌ Toggle Failed: ${failure.message}');
           emit(AgentsState.error(failure.message));
         },
-        (_) async {
-          print('✅ Toggle Success in Firestore. Fetching new list...');
+        (_) {
+          // ۲. به جای خواندن مجدد از Firestore، لیست رو به صورت محلی آپدیت میکنیم
+          if (state is AgentsSuccess) {
+            final currentState = state as AgentsSuccess;
+            final newFavorites = List<String>.from(currentState.favoriteIds);
 
-          // ۲. گرفتن لیست جدید
-          final favoritesResult = await getFavoriteIdsUseCase();
-          favoritesResult.fold(
-            (l) => print('❌ Get Favorites Failed: ${l.message}'),
-            (newFavoriteIds) {
-              print('✅ New Favorites: $newFavoriteIds');
-              if (state is AgentsSuccess) {
-                final currentState = state as AgentsSuccess;
-                emit(AgentsState.success(currentState.agents, newFavoriteIds));
+            if (event.isFavorite) {
+              if (!newFavorites.contains(event.agentId)) {
+                newFavorites.add(event.agentId);
               }
-            },
-          );
+            } else {
+              newFavorites.remove(event.agentId);
+            }
+
+            // ۳. آپدیت State با لیست جدید
+            emit(AgentsState.success(currentState.agents, newFavorites));
+          }
         },
       );
     });

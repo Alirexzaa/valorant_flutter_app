@@ -23,17 +23,19 @@ class AgentDetailsPage extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
-          // ✅ این بخش رو اضافه کن
           BlocBuilder<AgentsBloc, AgentsState>(
             builder: (context, state) {
               bool isFavorite = false;
               if (state is AgentsSuccess) {
                 isFavorite = state.favoriteIds.contains(agent.id);
+                // ✅ این خط رو اضافه کردم تا ببینیم چی داره اتفاق میفته
+                print(
+                  '⭐ UI CHECK: AgentID=${agent.id}, Favorites=${state.favoriteIds}, IsFav=$isFavorite',
+                );
               }
-
               return IconButton(
                 icon: Icon(
-                  isFavorite ? Icons.star : Icons.star_border,
+                  isFavorite ? Icons.star : Icons.abc_outlined,
                   color: isFavorite ? Colors.yellow : Colors.white,
                 ),
                 onPressed: () {

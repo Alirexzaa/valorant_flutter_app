@@ -8,7 +8,9 @@ import 'package:new_block/core/injection_container.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_event.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_state.dart';
-
+import 'package:new_block/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:new_block/features/auth/presentation/bloc/auth_event.dart';
+import 'package:go_router/go_router.dart';
 import 'package:new_block/core/widgets/error_view_widget.dart';
 
 class AgentsPage extends StatelessWidget {
@@ -47,6 +49,14 @@ class AgentsPage extends StatelessWidget {
                   icon: const Icon(Icons.map, color: Colors.white),
                   onPressed: () => context.push('/maps'),
                   tooltip: 'نقشه‌ها',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.logout, color: Colors.white),
+                  tooltip: 'خروج',
+                  onPressed: () {
+                    context.read<AuthBloc>().add(const SignOutRequested());
+                    context.go('/login'); // هدایت به لاگین
+                  },
                 ),
               ],
             ),
