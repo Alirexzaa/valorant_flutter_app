@@ -4,6 +4,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:new_block/core/widgets/shimmer_loading_widget.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_block/features/agents/presentation/pages/agents_page.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_event.dart';
@@ -47,8 +48,14 @@ void main() {
     ) async {
       when(() => mockAgentsBloc.state).thenReturn(const AgentsState.loading());
 
-      await tester.pumpWidget(const MaterialApp(home: AgentsPage()));
-
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider<AgentsBloc>.value(
+            value: mockAgentsBloc, // ✅ بلوک فیک رو به صفحه تزریق میکنیم
+            child: const AgentsPage(),
+          ),
+        ),
+      );
       expect(find.byType(ShimmerLoadingWidget), findsOneWidget);
     });
 
@@ -61,10 +68,15 @@ void main() {
       ];
 
       when(() => mockAgentsBloc.state)
-          .thenReturn(const AgentsState.success(tAgents));
-
-      await tester.pumpWidget(const MaterialApp(home: AgentsPage()));
-
+          .thenReturn(const AgentsState.success(tAgents, []));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider<AgentsBloc>.value(
+            value: mockAgentsBloc, // ✅ بلوک فیک رو به صفحه تزریق میکنیم
+            child: const AgentsPage(),
+          ),
+        ),
+      );
       expect(find.byType(GridView), findsOneWidget);
       expect(find.text('Jett'), findsOneWidget);
     });
