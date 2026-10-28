@@ -1,12 +1,36 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:new_block/core/network/dio_client.dart';
+import 'package:new_block/features/agents/data/datasources/favorites_remote_data_source.dart';
+import 'package:new_block/features/agents/data/datasources/favorites_remote_data_source_impl.dart';
+import 'package:new_block/features/agents/data/repositories/favorites_repository_impl.dart';
+import 'package:new_block/features/agents/domain/repositories/favorites_repository.dart';
+import 'package:new_block/features/agents/domain/usecases/get_favorite_ids_usecase.dart';
+import 'package:new_block/features/agents/domain/usecases/toggle_favorite_usecase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+// Auth
 import 'package:new_block/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:new_block/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:new_block/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:new_block/features/auth/domain/entities/repositories/auth_repository.dart';
+import 'package:new_block/features/auth/domain/repositories/auth_repository.dart'; // ✅ تصحیح شد
+import 'package:new_block/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:new_block/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:new_block/features/auth/domain/usecases/sign_up_usecase.dart';
+import 'package:new_block/features/auth/presentation/bloc/auth_bloc.dart'; //
+
+// Agents
+import 'package:new_block/features/agents/data/datasources/agents_local_data_source.dart';
+import 'package:new_block/features/agents/data/datasources/agents_local_data_source_impl.dart';
+import 'package:new_block/features/agents/data/datasources/agents_remote_data_source.dart';
+import 'package:new_block/features/agents/data/datasources/agents_remote_data_source_impl.dart';
+import 'package:new_block/features/agents/data/repositories/agents_repository_impl.dart';
+import 'package:new_block/features/agents/domain/repositories/agents_repository.dart';
+import 'package:new_block/features/agents/domain/usecases/get_agents_usecase.dart';
+import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
+
+// Maps
 import 'package:new_block/features/maps/data/datasources/maps_local_data_source.dart';
 import 'package:new_block/features/maps/data/datasources/maps_local_data_source_impl.dart';
 import 'package:new_block/features/maps/data/datasources/maps_remote_data_source.dart';
@@ -15,47 +39,31 @@ import 'package:new_block/features/maps/data/repositories/maps_repository_impl.d
 import 'package:new_block/features/maps/domain/repositories/maps_repository.dart';
 import 'package:new_block/features/maps/domain/usecases/get_maps_usecase.dart';
 import 'package:new_block/features/maps/presentation/bloc/maps_bloc.dart';
+
+// Weapons
+import 'package:new_block/features/weapons/data/datasources/weapons_local_data_source.dart';
+import 'package:new_block/features/weapons/data/datasources/weapons_local_data_source_impl.dart';
 import 'package:new_block/features/weapons/data/datasources/weapons_remote_data_source.dart';
 import 'package:new_block/features/weapons/data/datasources/weapons_remote_data_source_impl.dart';
 import 'package:new_block/features/weapons/data/repositories/weapons_repository_impl.dart';
 import 'package:new_block/features/weapons/domain/repositories/weapons_repository.dart';
 import 'package:new_block/features/weapons/domain/usecases/get_weapons_usecase.dart';
 import 'package:new_block/features/weapons/presentation/bloc/weapons_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // ← اضافه شد
-
-import 'package:new_block/features/agents/data/datasources/agents_local_data_source.dart'; // ← اضافه شد
-import 'package:new_block/features/agents/data/datasources/agents_local_data_source_impl.dart'; // ← اضافه شد
-import 'package:new_block/features/agents/data/datasources/agents_remote_data_source.dart';
-import 'package:new_block/features/agents/data/datasources/agents_remote_data_source_impl.dart';
-import 'package:new_block/features/agents/data/repositories/agents_repository_impl.dart';
-import 'package:new_block/features/agents/domain/repositories/agents_repository.dart';
-import 'package:new_block/features/agents/domain/usecases/get_agents_usecase.dart';
-import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
-
-import 'package:new_block/features/weapons/data/datasources/weapons_local_data_source.dart';
-import 'package:new_block/features/weapons/data/datasources/weapons_local_data_source_impl.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  // Presentation
+  // ═══════════════════════════════════════════
+  // Agents Feature
+  // ═══════════════════════════════════════════
   sl.registerFactory(() => AgentsBloc(getAgentsUseCase: sl()));
-
-  // Domain
   sl.registerLazySingleton(() => GetAgentsUseCase(sl()));
-
-  // Data
   sl.registerLazySingleton<AgentsRepository>(
-    () => AgentsRepositoryImpl(
-      remoteDataSource: sl(),
-      localDataSource: sl(), // ← تزریق دیتابیس محلی
-    ),
+    () => AgentsRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()),
   );
-
   sl.registerLazySingleton<AgentsRemoteDataSource>(
-    () => AgentsRemoteDataSourceImpl(dioClient: sl()), // ← تغییر کرد
+    () => AgentsRemoteDataSourceImpl(dioClient: sl()),
   );
-
   sl.registerLazySingleton<AgentsLocalDataSource>(
     () => AgentsLocalDataSourceImpl(sharedPreferences: sl()),
   );
@@ -65,62 +73,75 @@ Future<void> init() async {
   // ═══════════════════════════════════════════
   sl.registerFactory(() => WeaponsBloc(getWeaponsUseCase: sl()));
   sl.registerLazySingleton(() => GetWeaponsUseCase(sl()));
-
-  // ⬇️ اینجا localDataSource رو به Repository پاس میدیم
   sl.registerLazySingleton<WeaponsRepository>(
-    () => WeaponsRepositoryImpl(
-      remoteDataSource: sl(),
-      localDataSource: sl(), // ← این خط اضافه شد
-    ),
+    () => WeaponsRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()),
   );
-
   sl.registerLazySingleton<WeaponsRemoteDataSource>(
     () => WeaponsRemoteDataSourceImpl(dioClient: sl()),
   );
-
-  // ⬇️ این ثبت جدید برای LocalDataSource سلاح‌هاست
   sl.registerLazySingleton<WeaponsLocalDataSource>(
     () => WeaponsLocalDataSourceImpl(sharedPreferences: sl()),
   );
-  // Register DioClient (فقط یک بار در کل اپ)
-  sl.registerLazySingleton(() => DioClient());
 
-  // ⚠️ مهم: SharedPreferences باید قبل از استفاده مقداردهی بشه
-  final sharedPreferences = await SharedPreferences.getInstance();
-  sl.registerLazySingleton(() => sharedPreferences);
-
+  // ═══════════════════════════════════════════
   // Maps Feature
+  // ═══════════════════════════════════════════
   sl.registerFactory(() => MapsBloc(getMapsUseCase: sl()));
   sl.registerLazySingleton(() => GetMapsUseCase(sl()));
-
   sl.registerLazySingleton<MapsRepository>(
     () => MapsRepositoryImpl(
       remoteDataSource: sl<MapsRemoteDataSource>(),
       localDataSource: sl<MapsLocalDataSource>(),
     ),
   );
-
   sl.registerLazySingleton<MapsRemoteDataSource>(
     () => MapsRemoteDataSourceImpl(dioClient: sl()),
   );
-
   sl.registerLazySingleton<MapsLocalDataSource>(
     () => MapsLocalDataSourceImpl(sharedPreferences: sl()),
   );
 
+  // ═══════════════════════════════════════════
   // Auth Feature
-  sl.registerLazySingleton(
-    () => FirebaseAuth.instance,
-  ); // ← از پکیج firebase_auth
+  // ═══════════════════════════════════════════
+  sl.registerFactory(
+    () => AuthBloc(
+      // ✅ ثبت Bloc اضافه شد
+      signInUseCase: sl(),
+      signUpUseCase: sl(),
+      signOutUseCase: sl(),
+    ),
+  );
   sl.registerLazySingleton(() => SignInUseCase(sl()));
   sl.registerLazySingleton(() => SignUpUseCase(sl()));
   sl.registerLazySingleton(() => SignOutUseCase(sl()));
-
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(remoteDataSource: sl()),
   );
-
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(firebaseAuth: sl()),
   );
+
+  // ═══════════════════════════════════════════
+  // External / Core
+  // ═══════════════════════════════════════════
+  sl.registerLazySingleton(() => FirebaseAuth.instance);
+  sl.registerLazySingleton(() => DioClient());
+
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
+
+  sl.registerLazySingleton(() => ToggleFavoriteUseCase(sl()));
+  sl.registerLazySingleton(() => GetFavoriteIdsUseCase(sl()));
+
+  sl.registerLazySingleton<FavoritesRepository>(
+    () => FavoritesRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<FavoritesRemoteDataSource>(
+    () => FavoritesRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()),
+  );
+
+  // Register FirebaseFirestore (اگه قبلاً ثبت نکردی)
+  sl.registerLazySingleton(() => FirebaseFirestore.instance);
 }
