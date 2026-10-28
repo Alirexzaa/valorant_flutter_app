@@ -55,88 +55,93 @@ class AgentsPage extends StatelessWidget {
                 return switch (state) {
                   AgentsInitial() => const Center(child: Text('آماده شروع...')),
                   AgentsLoading() => const ShimmerLoadingWidget(),
-                  AgentsSuccess(agents: final agents) => RefreshIndicator(
-                    color: Colors.redAccent,
-                    onRefresh: () async {
-                      context.read<AgentsBloc>().add(const FetchAgentsEvent());
-                    },
-                    child: GridView.builder(
-                      padding: const EdgeInsets.all(16),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                          ),
-                      itemCount: agents.length,
-                      itemBuilder: (context, index) {
-                        final agent = agents[index];
-                        return GestureDetector(
-                          onTap: () {
-                            // رفتن به صفحه جزئیات و پاس دادن آبجکت ایجنت
-                            context.push('/details', extra: agent);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[900],
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.redAccent.withValues(alpha: 0.5),
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12),
-                                    ),
-                                    child: CachedNetworkImage(
-                                      imageUrl: agent.imageUrl,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      placeholder: (context, url) =>
-                                          const Center(
-                                            child: CircularProgressIndicator(
-                                              color: Colors.redAccent,
-                                            ),
-                                          ),
-                                      errorWidget: (context, url, error) =>
-                                          const Icon(
-                                            Icons.error,
-                                            color: Colors.red,
-                                          ),
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        agent.name,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      Text(
-                                        agent.role,
-                                        style: const TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                  AgentsSuccess(agents: final agents, favoriteIds: final _) =>
+                    RefreshIndicator(
+                      color: Colors.redAccent,
+                      onRefresh: () async {
+                        context.read<AgentsBloc>().add(
+                          const FetchAgentsEvent(),
                         );
                       },
+                      child: GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                            ),
+                        itemCount: agents.length,
+                        itemBuilder: (context, index) {
+                          final agent = agents[index];
+                          return GestureDetector(
+                            onTap: () {
+                              // رفتن به صفحه جزئیات و پاس دادن آبجکت ایجنت
+                              context.push('/details', extra: agent);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[900],
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.redAccent.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(12),
+                                      ),
+                                      child: CachedNetworkImage(
+                                        imageUrl: agent.imageUrl,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        placeholder: (context, url) =>
+                                            const Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.redAccent,
+                                              ),
+                                            ),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(
+                                              Icons.error,
+                                              color: Colors.red,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          agent.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Text(
+                                          agent.role,
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
                   AgentsError(message: final msg) => ErrorViewWidget(
                     message: msg,
                     onRetry: () {

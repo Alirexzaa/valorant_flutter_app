@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
+import 'package:new_block/features/auth/presentation/bloc/auth_bloc.dart';
 
-import 'firebase_options.dart'; // ← فایلی که flutterfire ساخت
-import 'core/injection_container.dart' as di;
-import 'core/app_router.dart';
+import 'package:new_block/firebase_options.dart';
+import 'package:new_block/core/injection_container.dart' as di;
+import 'package:new_block/core/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,12 +24,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Valorant App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(useMaterial3: true)
-          .copyWith(scaffoldBackgroundColor: const Color(0xFF0F1923)),
-      routerConfig: appRouter,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => di.sl<AuthBloc>()),
+        BlocProvider(create: (_) => di.sl<AgentsBloc>()), // ✅ اضافه شد
+      ],
+      child: MaterialApp.router(
+        title: 'Valorant App',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark(useMaterial3: true)
+            .copyWith(scaffoldBackgroundColor: const Color(0xFF0F1923)),
+        routerConfig: appRouter,
+      ),
     );
   }
 }

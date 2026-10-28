@@ -12,8 +12,13 @@ class FavoritesRemoteDataSourceImpl implements FavoritesRemoteDataSource {
     required this.firebaseAuth,
   });
 
-  // گرفتن آیدی کاربر فعلی
-  String get _userId => firebaseAuth.currentUser!.uid;
+  String get _userId {
+    final user = firebaseAuth.currentUser;
+    if (user == null) {
+      throw Exception('User is not logged in'); // ✅ جلوگیری از خطای null
+    }
+    return user.uid;
+  }
 
   // مسیر دیتابیس: users -> [userId] -> favorites
   CollectionReference get _favoritesRef =>

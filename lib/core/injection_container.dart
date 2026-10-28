@@ -2,32 +2,32 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:new_block/core/network/dio_client.dart';
-import 'package:new_block/features/agents/data/datasources/favorites_remote_data_source.dart';
-import 'package:new_block/features/agents/data/datasources/favorites_remote_data_source_impl.dart';
-import 'package:new_block/features/agents/data/repositories/favorites_repository_impl.dart';
-import 'package:new_block/features/agents/domain/repositories/favorites_repository.dart';
-import 'package:new_block/features/agents/domain/usecases/get_favorite_ids_usecase.dart';
-import 'package:new_block/features/agents/domain/usecases/toggle_favorite_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Auth
 import 'package:new_block/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:new_block/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:new_block/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:new_block/features/auth/domain/repositories/auth_repository.dart'; // ✅ تصحیح شد
+import 'package:new_block/features/auth/domain/repositories/auth_repository.dart';
 import 'package:new_block/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:new_block/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:new_block/features/auth/domain/usecases/sign_up_usecase.dart';
-import 'package:new_block/features/auth/presentation/bloc/auth_bloc.dart'; //
+import 'package:new_block/features/auth/presentation/bloc/auth_bloc.dart';
 
 // Agents
 import 'package:new_block/features/agents/data/datasources/agents_local_data_source.dart';
 import 'package:new_block/features/agents/data/datasources/agents_local_data_source_impl.dart';
 import 'package:new_block/features/agents/data/datasources/agents_remote_data_source.dart';
 import 'package:new_block/features/agents/data/datasources/agents_remote_data_source_impl.dart';
+import 'package:new_block/features/agents/data/datasources/favorites_remote_data_source.dart';
+import 'package:new_block/features/agents/data/datasources/favorites_remote_data_source_impl.dart';
 import 'package:new_block/features/agents/data/repositories/agents_repository_impl.dart';
+import 'package:new_block/features/agents/data/repositories/favorites_repository_impl.dart';
 import 'package:new_block/features/agents/domain/repositories/agents_repository.dart';
+import 'package:new_block/features/agents/domain/repositories/favorites_repository.dart';
 import 'package:new_block/features/agents/domain/usecases/get_agents_usecase.dart';
+import 'package:new_block/features/agents/domain/usecases/get_favorite_ids_usecase.dart';
+import 'package:new_block/features/agents/domain/usecases/toggle_favorite_usecase.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
 
 // Maps
@@ -56,8 +56,17 @@ Future<void> init() async {
   // ═══════════════════════════════════════════
   // Agents Feature
   // ═══════════════════════════════════════════
-  sl.registerFactory(() => AgentsBloc(getAgentsUseCase: sl()));
+  sl.registerFactory(
+    () => AgentsBloc(
+      getAgentsUseCase: sl(),
+      toggleFavoriteUseCase: sl(),
+      getFavoriteIdsUseCase: sl(),
+    ),
+  );
   sl.registerLazySingleton(() => GetAgentsUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleFavoriteUseCase(sl()));
+  sl.registerLazySingleton(() => GetFavoriteIdsUseCase(sl()));
+
   sl.registerLazySingleton<AgentsRepository>(
     () => AgentsRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()),
   );
@@ -66,6 +75,14 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<AgentsLocalDataSource>(
     () => AgentsLocalDataSourceImpl(sharedPreferences: sl()),
+  );
+
+  // Favorites (وابسته به Agents)
+  sl.registerLazySingleton<FavoritesRepository>(
+    () => FavoritesRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<FavoritesRemoteDataSource>(
+    () => FavoritesRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()),
   );
 
   // ═══════════════════════════════════════════
@@ -106,7 +123,6 @@ Future<void> init() async {
   // ═══════════════════════════════════════════
   sl.registerFactory(
     () => AuthBloc(
-      // ✅ ثبت Bloc اضافه شد
       signInUseCase: sl(),
       signUpUseCase: sl(),
       signOutUseCase: sl(),
@@ -126,22 +142,9 @@ Future<void> init() async {
   // External / Core
   // ═══════════════════════════════════════════
   sl.registerLazySingleton(() => FirebaseAuth.instance);
+  sl.registerLazySingleton(() => FirebaseFirestore.instance);
   sl.registerLazySingleton(() => DioClient());
 
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
-
-  sl.registerLazySingleton(() => ToggleFavoriteUseCase(sl()));
-  sl.registerLazySingleton(() => GetFavoriteIdsUseCase(sl()));
-
-  sl.registerLazySingleton<FavoritesRepository>(
-    () => FavoritesRepositoryImpl(remoteDataSource: sl()),
-  );
-
-  sl.registerLazySingleton<FavoritesRemoteDataSource>(
-    () => FavoritesRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()),
-  );
-
-  // Register FirebaseFirestore (اگه قبلاً ثبت نکردی)
-  sl.registerLazySingleton(() => FirebaseFirestore.instance);
 }

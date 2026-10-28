@@ -1,39 +1,68 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:new_block/features/agents/domain/entities/agent.dart';
 import 'package:new_block/features/agents/domain/usecases/get_agents_usecase.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_event.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_state.dart';
+import 'package:new_block/features/agents/domain/usecases/toggle_favorite_usecase.dart';
+import 'package:new_block/features/agents/domain/usecases/get_favorite_ids_usecase.dart';
+import 'package:rxdart/rxdart.dart';
 
-import 'package:rxdart/rxdart.dart'; // ← این ایمپورت رو اضافه کن
-
-// ═══════════════════════════════════════════
-// ساخت EventTransformer سفارشی برای Debounce
-// ═══════════════════════════════════════════
 EventTransformer<T> debounceTime<T>(Duration duration) {
   return (events, mapper) => events.debounceTime(duration).flatMap(mapper);
 }
 
 class AgentsBloc extends Bloc<AgentsEvent, AgentsState> {
   final GetAgentsUseCase getAgentsUseCase;
+  final ToggleFavoriteUseCase toggleFavoriteUseCase;
+  final GetFavoriteIdsUseCase getFavoriteIdsUseCase;
 
-  // یه لیست خصوصی برای نگه داشتن همه ایجنت‌ها (تا وقتی سرچ میکنیم، لیست اصلیمون رو از دست ندیم)
   List<Agent> _allAgents = [];
 
-  AgentsBloc({required this.getAgentsUseCase})
-    : super(const AgentsState.initial()) {
-    // مدیریت رویداد Fetch (همون قبلی)
+  AgentsBloc({
+    required this.getAgentsUseCase,
+    required this.toggleFavoriteUseCase,
+    required this.getFavoriteIdsUseCase,
+  }) : super(const AgentsState.initial()) {
     on<FetchAgentsEvent>(_onFetchAgents, transformer: droppable());
 
-    // مدیریت رویداد Search (جدید!)
     on<SearchAgentsEvent>(
       _onSearchAgents,
-      transformer: debounceTime(
-        const Duration(milliseconds: 500),
-      ), // ← جادوی مسیر A
+      transformer: debounceTime(const Duration(milliseconds: 500)),
     );
+
+    on<ToggleFavoriteEvent>((event, emit) async {
+      print('--- Toggle Favorite Started ---');
+
+      // ۱. تلاش برای تغییر وضعیت در فایربیس
+      final toggleResult = await toggleFavoriteUseCase(
+        event.agentId,
+        event.isFavorite,
+      );
+
+      toggleResult.fold(
+        (failure) {
+          print('❌ Toggle Failed: ${failure.message}');
+          emit(AgentsState.error(failure.message));
+        },
+        (_) async {
+          print('✅ Toggle Success in Firestore. Fetching new list...');
+
+          // ۲. گرفتن لیست جدید
+          final favoritesResult = await getFavoriteIdsUseCase();
+          favoritesResult.fold(
+            (l) => print('❌ Get Favorites Failed: ${l.message}'),
+            (newFavoriteIds) {
+              print('✅ New Favorites: $newFavoriteIds');
+              if (state is AgentsSuccess) {
+                final currentState = state as AgentsSuccess;
+                emit(AgentsState.success(currentState.agents, newFavoriteIds));
+              }
+            },
+          );
+        },
+      );
+    });
   }
 
   Future<void> _onFetchAgents(
@@ -41,39 +70,38 @@ class AgentsBloc extends Bloc<AgentsEvent, AgentsState> {
     Emitter<AgentsState> emit,
   ) async {
     emit(const AgentsState.loading());
-
-    // ۱. UseCase رو صدا میزنیم (که الان یه Either برمیگردونه)
     final result = await getAgentsUseCase();
+    final favoritesResult = await getFavoriteIdsUseCase();
 
-    // ۲. با fold تصمیم میگیریم چی کار کنیم
-    result.fold(
-      (failure) {
-        // ❌ حالت خطا (Left)
-        emit(AgentsState.error(failure.message));
-      },
-      (agents) {
-        // ✅ حالت موفقیت (Right)
-        _allAgents = agents; // لیست اصلی رو برای جستجو (Search) ذخیره میکنیم
-        emit(AgentsState.success(agents));
-      },
-    );
+    result.fold((failure) => emit(AgentsState.error(failure.message)), (
+      agents,
+    ) {
+      _allAgents = agents;
+      favoritesResult.fold(
+        (l) => emit(AgentsState.success(agents, [])),
+        (favoriteIds) => emit(AgentsState.success(agents, favoriteIds)),
+      );
+    });
   }
 
   void _onSearchAgents(SearchAgentsEvent event, Emitter<AgentsState> emit) {
-    // اگه هنوز لیستی لود نشده، کاری نکن
     if (_allAgents.isEmpty) return;
 
     final query = event.query.toLowerCase().trim();
 
+    // گرفتن لیست فعلی علاقه‌مندی‌ها از State
+    List<String> currentFavorites = [];
+    if (state is AgentsSuccess) {
+      currentFavorites = (state as AgentsSuccess).favoriteIds;
+    }
+
     if (query.isEmpty) {
-      // اگه کاربر سرچ رو پاک کرد، همه ایجنت‌ها رو نشون بده
-      emit(AgentsState.success(_allAgents));
+      emit(AgentsState.success(_allAgents, currentFavorites));
     } else {
-      // فیلتر کردن ایجنت‌ها بر اساس حروفی که کاربر تایپ کرده
       final filteredAgents = _allAgents
           .where((agent) => agent.name.toLowerCase().contains(query))
           .toList();
-      emit(AgentsState.success(filteredAgents));
+      emit(AgentsState.success(filteredAgents, currentFavorites));
     }
   }
 }

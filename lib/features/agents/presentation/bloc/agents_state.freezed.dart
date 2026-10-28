@@ -126,12 +126,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Agent> agents)?  success,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Agent> agents,  List<String> favoriteIds)?  success,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AgentsInitial() when initial != null:
 return initial();case AgentsLoading() when loading != null:
 return loading();case AgentsSuccess() when success != null:
-return success(_that.agents);case AgentsError() when error != null:
+return success(_that.agents,_that.favoriteIds);case AgentsError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -150,12 +150,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Agent> agents)  success,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Agent> agents,  List<String> favoriteIds)  success,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case AgentsInitial():
 return initial();case AgentsLoading():
 return loading();case AgentsSuccess():
-return success(_that.agents);case AgentsError():
+return success(_that.agents,_that.favoriteIds);case AgentsError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -170,12 +170,12 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Agent> agents)?  success,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Agent> agents,  List<String> favoriteIds)?  success,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case AgentsInitial() when initial != null:
 return initial();case AgentsLoading() when loading != null:
 return loading();case AgentsSuccess() when success != null:
-return success(_that.agents);case AgentsError() when error != null:
+return success(_that.agents,_that.favoriteIds);case AgentsError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -252,7 +252,7 @@ String toString() {
 
 
 class AgentsSuccess implements AgentsState {
-  const AgentsSuccess( List<Agent> agents): _agents = agents;
+  const AgentsSuccess( List<Agent> agents,  List<String> favoriteIds): _agents = agents,_favoriteIds = favoriteIds;
   
 
  final  List<Agent> _agents;
@@ -260,6 +260,13 @@ class AgentsSuccess implements AgentsState {
   if (_agents is EqualUnmodifiableListView) return _agents;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_agents);
+}
+
+ final  List<String> _favoriteIds;
+ List<String> get favoriteIds {
+  if (_favoriteIds is EqualUnmodifiableListView) return _favoriteIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_favoriteIds);
 }
 
 
@@ -273,18 +280,18 @@ $AgentsSuccessCopyWith<AgentsSuccess> get copyWith => _$AgentsSuccessCopyWithImp
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is AgentsSuccess&&const DeepCollectionEquality().equals(other.agents, _agents));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AgentsSuccess&&const DeepCollectionEquality().equals(other.agents, _agents)&&const DeepCollectionEquality().equals(other.favoriteIds, _favoriteIds));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_agents));
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_agents),const DeepCollectionEquality().hash(_favoriteIds));
 }
 
 @override
 String toString() {
-    return 'AgentsState.success(agents: $agents)';
+    return 'AgentsState.success(agents: $agents, favoriteIds: $favoriteIds)';
 }
 
 
@@ -295,7 +302,7 @@ abstract mixin class $AgentsSuccessCopyWith<$Res> implements $AgentsStateCopyWit
   factory $AgentsSuccessCopyWith(AgentsSuccess value, $Res Function(AgentsSuccess) _then) = _$AgentsSuccessCopyWithImpl;
 @useResult
 $Res call({
- List<Agent> agents
+ List<Agent> agents, List<String> favoriteIds
 });
 
 
@@ -312,10 +319,11 @@ class _$AgentsSuccessCopyWithImpl<$Res>
 
 /// Create a copy of AgentsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? agents = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? agents = null,Object? favoriteIds = null,}) {
   return _then(AgentsSuccess(
 null == agents ? _self._agents : agents // ignore: cast_nullable_to_non_nullable
-as List<Agent>,
+as List<Agent>,null == favoriteIds ? _self._favoriteIds : favoriteIds // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 

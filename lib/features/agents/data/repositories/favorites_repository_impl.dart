@@ -18,7 +18,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       await remoteDataSource.toggleFavorite(agentId, isFavorite);
       return const Right(null);
     } catch (e) {
-      return const Left(ServerFailure('Failed to update favorite'));
+      print('🔥 Firestore Actual Error: $e'); // ✅ خطای واقعی رو چاپ میکنه
+      return Left(ServerFailure('Failed to update favorite: $e'));
     }
   }
 

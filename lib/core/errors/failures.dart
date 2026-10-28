@@ -21,3 +21,7 @@ class TimeoutFailure extends Failure {
     super.message = 'سرور پاسخ نمی‌دهد. لطفاً دوباره تلاش کنید.',
   ]);
 }
+
+class AuthFailure extends Failure {
+  const AuthFailure(super.message);
+}
