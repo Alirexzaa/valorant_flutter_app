@@ -17,9 +17,14 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await remoteDataSource.signIn(email, password);
       return Right(AppUser(uid: user.uid, email: user.email ?? ''));
     } on FirebaseAuthException catch (e) {
-      return Left(AuthFailure(e.message ?? 'Authentication Error'));
+      return Left(AuthFailure(_mapAuthError(e.code)));
     } catch (e) {
-      return const Left(AuthFailure('Unexpected Error'));
+      // ✅ اینجا ارورهای عجیب مثل همون HTML 403 گوگل رو میگیریم
+      return const Left(
+        AuthFailure(
+          'خطای شبکه یا محدودیت منطقه‌ای. لطفاً VPN خود را روشن کنید.',
+        ),
+      );
     }
   }
 
@@ -29,9 +34,13 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await remoteDataSource.signUp(email, password);
       return Right(AppUser(uid: user.uid, email: user.email ?? ''));
     } on FirebaseAuthException catch (e) {
-      return Left(AuthFailure(e.message ?? 'Authentication Error'));
+      return Left(AuthFailure(_mapAuthError(e.code)));
     } catch (e) {
-      return const Left(AuthFailure('Unexpected Error'));
+      return const Left(
+        AuthFailure(
+          'خطای شبکه یا محدودیت منطقه‌ای. لطفاً VPN خود را روشن کنید.',
+        ),
+      );
     }
   }
 
@@ -41,7 +50,27 @@ class AuthRepositoryImpl implements AuthRepository {
       await remoteDataSource.signOut();
       return const Right(null);
     } catch (e) {
-      return const Left(AuthFailure('Failed to sign out'));
+      return const Left(AuthFailure('خطا در خروج از حساب کاربری'));
+    }
+  }
+
+  // ✅ تابعی برای ترجمه ارورهای فایربیس به فارسی
+  String _mapAuthError(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'کاربری با این ایمیل یافت نشد.';
+      case 'wrong-password':
+        return 'رمز عبور اشتباه است.';
+      case 'email-already-in-use':
+        return 'این ایمیل قبلاً ثبت‌نام کرده است.';
+      case 'weak-password':
+        return 'رمز عبور باید حداقل ۶ کاراکتر باشد.';
+      case 'invalid-email':
+        return 'فرمت ایمیل وارد شده صحیح نیست.';
+      case 'network-request-failed':
+        return 'خطای شبکه. لطفاً اتصال اینترنت خود را بررسی کنید.';
+      default:
+        return 'خطایی رخ داد. لطفاً دوباره تلاش کنید. (کد: $code)';
     }
   }
 }
