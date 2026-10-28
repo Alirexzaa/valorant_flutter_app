@@ -32,36 +32,32 @@ class AgentsBloc extends Bloc<AgentsEvent, AgentsState> {
     );
 
     on<ToggleFavoriteEvent>((event, emit) async {
-      // ۱. آپدیت دیتابیس ابری
       final toggleResult = await toggleFavoriteUseCase(
         event.agentId,
         event.isFavorite,
       );
 
-      toggleResult.fold(
-        (failure) {
-          print('❌ Toggle Failed: ${failure.message}');
-          emit(AgentsState.error(failure.message));
-        },
-        (_) {
-          // ۲. به جای خواندن مجدد از Firestore، لیست رو به صورت محلی آپدیت میکنیم
-          if (state is AgentsSuccess) {
-            final currentState = state as AgentsSuccess;
-            final newFavorites = List<String>.from(currentState.favoriteIds);
+      toggleResult.fold((failure) => emit(AgentsState.error(failure.message)), (
+        _,
+      ) {
+        if (state is AgentsSuccess) {
+          final currentState = state as AgentsSuccess;
+          final newFavorites = List<String>.from(currentState.favoriteIds);
 
-            if (event.isFavorite) {
-              if (!newFavorites.contains(event.agentId)) {
-                newFavorites.add(event.agentId);
-              }
-            } else {
-              newFavorites.remove(event.agentId);
+          if (event.isFavorite) {
+            if (!newFavorites.contains(event.agentId)) {
+              newFavorites.add(event.agentId);
             }
-
-            // ۳. آپدیت State با لیست جدید
-            emit(AgentsState.success(currentState.agents, newFavorites));
+          } else {
+            newFavorites.remove(event.agentId);
           }
-        },
-      );
+
+          // ✅ اینجا یه لیست جدید میسازیم تا Freezed مجبور بشه تغییر رو قبول کنه
+          final newAgents = List<Agent>.from(currentState.agents);
+
+          emit(AgentsState.success(newAgents, newFavorites));
+        }
+      });
     });
   }
 

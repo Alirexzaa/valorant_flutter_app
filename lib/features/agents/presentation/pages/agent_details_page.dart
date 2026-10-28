@@ -27,15 +27,19 @@ class AgentDetailsPage extends StatelessWidget {
             builder: (context, state) {
               bool isFavorite = false;
               if (state is AgentsSuccess) {
-                isFavorite = state.favoriteIds.contains(agent.id);
-                // ✅ این خط رو اضافه کردم تا ببینیم چی داره اتفاق میفته
+                // ✅ این دو خط رو جایگزین کن
+                print('⭐ ID from API: "${agent.id}"');
                 print(
-                  '⭐ UI CHECK: AgentID=${agent.id}, Favorites=${state.favoriteIds}, IsFav=$isFavorite',
+                  '⭐ IDs from Firebase: ${state.favoriteIds.map((e) => '"$e"').toList()}',
+                );
+
+                isFavorite = state.favoriteIds.any(
+                  (id) => id.trim() == agent.id.trim(),
                 );
               }
               return IconButton(
                 icon: Icon(
-                  isFavorite ? Icons.star : Icons.abc_outlined,
+                  isFavorite ? Icons.star : Icons.star_border_outlined,
                   color: isFavorite ? Colors.yellow : Colors.white,
                 ),
                 onPressed: () {
