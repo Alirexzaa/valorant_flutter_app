@@ -1,5 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:new_block/core/network/dio_client.dart';
+import 'package:new_block/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:new_block/features/auth/data/datasources/auth_remote_data_source_impl.dart';
+import 'package:new_block/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:new_block/features/auth/domain/entities/repositories/auth_repository.dart';
+import 'package:new_block/features/auth/domain/usecases/sign_out_usecase.dart';
+import 'package:new_block/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:new_block/features/maps/data/datasources/maps_local_data_source.dart';
 import 'package:new_block/features/maps/data/datasources/maps_local_data_source_impl.dart';
 import 'package:new_block/features/maps/data/datasources/maps_remote_data_source.dart';
@@ -99,5 +106,21 @@ Future<void> init() async {
 
   sl.registerLazySingleton<MapsLocalDataSource>(
     () => MapsLocalDataSourceImpl(sharedPreferences: sl()),
+  );
+
+  // Auth Feature
+  sl.registerLazySingleton(
+    () => FirebaseAuth.instance,
+  ); // ← از پکیج firebase_auth
+  sl.registerLazySingleton(() => SignInUseCase(sl()));
+  sl.registerLazySingleton(() => SignUpUseCase(sl()));
+  sl.registerLazySingleton(() => SignOutUseCase(sl()));
+
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(firebaseAuth: sl()),
   );
 }
