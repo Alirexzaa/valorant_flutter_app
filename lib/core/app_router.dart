@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 // Entities
 import 'package:new_block/features/agents/domain/entities/agent.dart';
+import 'package:new_block/features/favorites/presentation/pages/favorites_page.dart';
 import 'package:new_block/features/maps/domain/entities/map.dart';
 import 'package:new_block/features/maps/presentation/pages/map_details_page.dart';
 import 'package:new_block/features/weapons/domain/entities/weapon.dart';
@@ -11,7 +12,6 @@ import 'package:new_block/features/weapons/domain/entities/weapon.dart';
 // Pages
 import 'package:new_block/features/agents/presentation/pages/agents_page.dart';
 import 'package:new_block/features/agents/presentation/pages/agent_details_page.dart';
-import 'package:new_block/features/agents/presentation/pages/favorites_page.dart';
 import 'package:new_block/features/weapons/presentation/pages/weapons_page.dart';
 import 'package:new_block/features/weapons/presentation/pages/weapon_details_page.dart';
 import 'package:new_block/features/maps/presentation/pages/maps_page.dart';

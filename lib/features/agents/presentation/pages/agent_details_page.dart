@@ -41,19 +41,56 @@ class _AgentDetailsPageState extends State<AgentDetailsPage> {
         ),
         child: Stack(
           children: [
-            // عکس بزرگ ایجنت (Full Portrait)
-            Positioned(
-              top: 50,
-              left: 0,
-              right: 0,
-              child: CachedNetworkImage(
-                imageUrl: widget.agent.fullPortrait,
-                height: 450,
-                fit: BoxFit.contain,
-                errorWidget: (c, u, e) => const Icon(Icons.error, size: 100),
+            // ۱. لایه اول: عکس پس‌زمینه (الگو)
+            if (widget.agent.backgroundImage.isNotEmpty)
+              Positioned.fill(
+                child: CachedNetworkImage(
+                  imageUrl: widget.agent.backgroundImage,
+                  fit: BoxFit.cover,
+                  // ✅ پس‌زمینه رو تیره‌تر کردیم تا حواس کاربر به ایجنت باشه
+                  color: Colors.black.withValues(alpha: 0.6),
+                  colorBlendMode: BlendMode.darken,
+                  errorWidget: (c, u, e) => const SizedBox(),
+                ),
+              ),
+
+            // ۲. لایه دوم: گرادیانت رنگی
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: colors.length >= 2
+                        ? [
+                            colors[0].withValues(alpha: 0.7),
+                            colors[1].withValues(alpha: 0.9),
+                          ]
+                        : [
+                            Colors.redAccent.withValues(alpha: 0.7),
+                            const Color(0xFF0F1923),
+                          ],
+                  ),
+                ),
               ),
             ),
 
+            // ۳. لایه سوم: عکس خود ایجنت
+            Positioned(
+              top: 80, // فاصله از بالا (همون‌طور که بود)
+              left: 0,
+              right: 0,
+              child: Transform.scale(
+                // ✅ این عدد رو کم و زیاد کن تا اندازه عکس تنظیم بشه (مثلاً 1.2 یا 1.5)
+                scale: 1.5,
+                child: CachedNetworkImage(
+                  imageUrl: widget.agent.fullPortrait,
+                  height: 500, // ارتفاع پایه رو دست نزن
+                  fit: BoxFit.contain,
+                  errorWidget: (c, u, e) => const Icon(Icons.error, size: 100),
+                ),
+              ),
+            ),
             // دکمه بازگشت و نام ایجنت
             Positioned(
               top: 40,
@@ -122,25 +159,33 @@ class _AgentDetailsPageState extends State<AgentDetailsPage> {
               left: 0,
               right: 0,
               child: Container(
-                height: 250,
-                padding: const EdgeInsets.all(20),
+                // ✅ ارتفاع کادر رو کمتر کردیم تا کل کادر بیاد بالاتر
+                height: 220,
+                // ✅ پدینگ بالا رو کمتر کردیم تا آیکون‌ها بالاتر قرار بگیرن
+                padding: const EdgeInsets.only(
+                  top: 16,
+                  left: 20,
+                  right: 20,
+                  bottom: 20,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.6),
+                  color: Colors.black.withValues(alpha: 0.7),
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(30),
                   ),
                 ),
                 child: Column(
                   children: [
-                    // لیست افقی آیکون توانایی‌ها
+                    // ✅ آیکون‌ها حالا در یک Row وسط‌چین قرار گرفتن
                     SizedBox(
                       height: 60,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: widget.agent.abilities.length,
-                        itemBuilder: (context, index) {
-                          final ability = widget.agent.abilities[index];
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.center, // وسط چین کردن
+                        children: widget.agent.abilities.map((ability) {
+                          final index = widget.agent.abilities.indexOf(ability);
                           final isSelected = selectedAbilityIndex == index;
+
                           return GestureDetector(
                             onTap: () {
                               setState(() {
@@ -148,7 +193,8 @@ class _AgentDetailsPageState extends State<AgentDetailsPage> {
                               });
                             },
                             child: Container(
-                              margin: const EdgeInsets.only(right: 15),
+                              // فاصله بین آیکون‌ها رو تنظیم کردیم
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: isSelected
@@ -158,18 +204,21 @@ class _AgentDetailsPageState extends State<AgentDetailsPage> {
                               ),
                               child: CachedNetworkImage(
                                 imageUrl: ability.iconUrl,
-                                width: 40,
+                                width: 35, // سایز آیکون‌ها
                                 color: isSelected ? Colors.black : Colors.white,
                                 errorWidget: (c, u, e) =>
                                     const Icon(Icons.star, color: Colors.white),
                               ),
                             ),
                           );
-                        },
+                        }).toList(),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    // متن توضیحات ایجنت یا توانایی انتخاب شده
+
+                    // ✅ فاصله بین آیکون‌ها و متن رو خیلی کم کردیم
+                    const SizedBox(height: 12),
+
+                    // متن توضیحات
                     Expanded(
                       child: SingleChildScrollView(
                         child: Text(
@@ -182,7 +231,7 @@ class _AgentDetailsPageState extends State<AgentDetailsPage> {
                           textAlign: TextAlign.justify,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 14,
                           ),
                         ),
                       ),

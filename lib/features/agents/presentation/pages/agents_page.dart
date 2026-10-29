@@ -7,8 +7,6 @@ import 'package:new_block/core/widgets/shimmer_loading_widget.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_event.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_state.dart';
-import 'package:new_block/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:new_block/features/auth/presentation/bloc/auth_event.dart';
 import 'package:new_block/core/widgets/error_view_widget.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 

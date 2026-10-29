@@ -5,6 +5,7 @@ class Agent {
   final String imageUrl;
   final String description;
   final String fullPortrait;
+  final String backgroundImage;
   final List<String> backgroundColors;
   final List<Ability> abilities;
 
@@ -15,6 +16,7 @@ class Agent {
     required this.imageUrl,
     required this.description,
     required this.fullPortrait,
+    required this.backgroundImage,
     required this.backgroundColors,
     required this.abilities,
   });

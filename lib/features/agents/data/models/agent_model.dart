@@ -8,10 +8,10 @@ class AgentModel extends Agent {
     required super.imageUrl,
     required super.description,
     required super.fullPortrait,
+    required super.backgroundImage, // ✅ این خط جا افتاده بود
     required super.backgroundColors,
     required super.abilities,
   });
-
   factory AgentModel.fromJson(Map<String, dynamic> json) {
     // تابعی برای پاک کردن تگ‌های HTML (مثل <whitebold>)
     String cleanHtml(String? text) {
@@ -45,9 +45,10 @@ class AgentModel extends Agent {
       name: json['displayName'] ?? 'Unknown',
       role: json['role'] != null ? json['role']['displayName'] : 'No Role',
       imageUrl: json['displayIcon'] ?? '',
-      // ✅ اینجا هم متن اصلی ایجنت رو پاک میکنیم
       description: cleanHtml(json['description']),
       fullPortrait: json['fullPortrait'] ?? json['displayIcon'] ?? '',
+      // ✅ استخراج عکس پس‌زمینه
+      backgroundImage: json['background'] ?? '',
       backgroundColors: colors,
       abilities: abilitiesList,
     );
