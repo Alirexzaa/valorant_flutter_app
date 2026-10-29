@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 // Entities
 import 'package:new_block/features/agents/domain/entities/agent.dart';
+import 'package:new_block/features/maps/domain/entities/map.dart';
+import 'package:new_block/features/maps/presentation/pages/map_details_page.dart';
 import 'package:new_block/features/weapons/domain/entities/weapon.dart';
 
 // Pages
@@ -28,6 +30,7 @@ final _shellNavigatorWeaponsKey = GlobalKey<NavigatorState>(
 final _shellNavigatorFavoritesKey = GlobalKey<NavigatorState>(
   debugLabel: 'favorites',
 );
+final _shellNavigatorMapsKey = GlobalKey<NavigatorState>(debugLabel: 'maps');
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -98,7 +101,27 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
-        // تب ۴: علاقه‌مندی‌ها
+        // تب 4 (جدید): نقشه‌ها
+        StatefulShellBranch(
+          navigatorKey: _shellNavigatorMapsKey,
+          routes: [
+            GoRoute(
+              path: '/maps',
+              builder: (context, state) => const MapsPage(),
+              routes: [
+                GoRoute(
+                  path: 'details',
+                  parentNavigatorKey: _rootNavigatorKey, // تمام صفحه باز بشه
+                  builder: (context, state) {
+                    final map = state.extra as ValorantMap;
+                    return MapDetailsPage(map: map);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        // تب 5: علاقه‌مندی‌ها
         StatefulShellBranch(
           navigatorKey: _shellNavigatorFavoritesKey,
           routes: [
@@ -109,13 +132,6 @@ final GoRouter appRouter = GoRouter(
           ],
         ),
       ],
-    ),
-
-    // Maps (خارج از Bottom Nav، از توی صفحه ایجنت‌ها باز میشه)
-    GoRoute(
-      path: '/maps',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const MapsPage(),
     ),
   ],
 );

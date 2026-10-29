@@ -38,6 +38,11 @@ class MainShellPage extends StatelessWidget {
             label: 'سلاح‌ها',
           ),
           NavigationDestination(
+            icon: Icon(Icons.map_outlined, color: Colors.white70),
+            selectedIcon: Icon(Icons.map, color: Colors.redAccent),
+            label: 'نقشه‌ها',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.star_border, color: Colors.white70),
             selectedIcon: Icon(Icons.star, color: Colors.redAccent),
             label: 'علاقه‌مندی',
