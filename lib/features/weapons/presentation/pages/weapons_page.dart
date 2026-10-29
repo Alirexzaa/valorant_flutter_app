@@ -37,9 +37,8 @@ class WeaponsPage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final weapon = weapons[index];
                       return InkWell(
-                        onTap: () {
-                          context.push('/weapon-details', extra: weapon);
-                        },
+                        onTap: () =>
+                            context.push('/weapons/details', extra: weapon),
                         child: ListTile(
                           leading: CachedNetworkImage(
                             imageUrl: weapon.imageUrl,
