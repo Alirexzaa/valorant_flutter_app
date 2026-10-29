@@ -30,18 +30,15 @@ class _AgentsPageState extends State<AgentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.redAccent.shade700,
-        title: TextField(
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
-            hintText: 'name',
-            hintStyle: TextStyle(color: Colors.white70),
-            border: InputBorder.none,
-            icon: Icon(Icons.search, color: Colors.white),
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.redAccent.shade700, Colors.redAccent.shade200],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-          onChanged: (value) {
-            context.read<AgentsBloc>().add(SearchAgentsEvent(value));
-          },
         ),
         actions: [
           IconButton(
@@ -97,9 +94,16 @@ class _AgentsPageState extends State<AgentsPage> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.grey[900],
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16), // گردتر شد
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                           border: Border.all(
-                            color: Colors.redAccent.withValues(alpha: 0.5),
+                            color: Colors.redAccent.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Column(
