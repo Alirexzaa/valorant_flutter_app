@@ -34,7 +34,6 @@ class MapDetailsPage extends StatelessWidget {
                     errorWidget: (c, u, e) =>
                         const Center(child: Icon(Icons.error)),
                   ),
-                  // گرادیانت تیره برای خوانایی متن
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -49,7 +48,7 @@ class MapDetailsPage extends StatelessWidget {
             ),
           ),
 
-          // ۲. بخش نقشه تاکتیکی
+          // ۲. بخش نقشه تاکتیکی (با قابلیت زوم)
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -63,9 +62,13 @@ class MapDetailsPage extends StatelessWidget {
                       color: Colors.redAccent,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    '(برای بزرگنمایی، با دو انگشت نقشه را باز کنید)',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                   const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.grey[900],
                       borderRadius: BorderRadius.circular(16),
@@ -73,12 +76,25 @@ class MapDetailsPage extends StatelessWidget {
                         color: Colors.redAccent.withValues(alpha: 0.3),
                       ),
                     ),
-                    child: CachedNetworkImage(
-                      imageUrl: map.tacticalMapUrl,
-                      fit: BoxFit.contain,
-                      height: 250,
-                      errorWidget: (c, u, e) =>
-                          const Center(child: Text('نقشه در دسترس نیست')),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      // ✅ زوم کردن روی نقشه
+                      child: InteractiveViewer(
+                        minScale: 1.0,
+                        maxScale: 4.0,
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: CachedNetworkImage(
+                            imageUrl: map.tacticalMapUrl,
+                            fit: BoxFit.fill,
+                            placeholder: (context, url) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Center(child: Text('نقشه در دسترس نیست')),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -86,7 +102,48 @@ class MapDetailsPage extends StatelessWidget {
             ),
           ),
 
-          // ۳. بخش نقاط استراتژیک (Callouts)
+          // ۳. بخش اطلاعات جغرافیایی
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[900],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.public, color: Colors.redAccent, size: 30),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'موقعیت جغرافیایی در دنیای واقعی',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            map.coordinates,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // ۴. بخش نقاط استراتژیک (Callouts) به صورت چیپ
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -102,15 +159,17 @@ class MapDetailsPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // نمایش نقاط به صورت Chip
                   Wrap(
                     spacing: 8.0,
                     runSpacing: 8.0,
                     children: map.callouts.map((callout) {
                       return Chip(
                         label: Text(
-                          callout,
-                          style: const TextStyle(color: Colors.white),
+                          callout.name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                          ),
                         ),
                         backgroundColor: Colors.grey[800],
                         side: BorderSide(
@@ -119,7 +178,7 @@ class MapDetailsPage extends StatelessWidget {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 40), // فاصله برای اسکرول راحت‌تر
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
