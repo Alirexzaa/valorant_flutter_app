@@ -1,70 +1,121 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+// Entities
 import 'package:new_block/features/agents/domain/entities/agent.dart';
-import 'package:new_block/features/agents/presentation/pages/favorites_page.dart';
-import 'package:new_block/features/auth/presentation/bloc/pages/auth_page.dart';
-import 'package:new_block/features/maps/presentation/bloc/pages/maps_page.dart';
 import 'package:new_block/features/weapons/domain/entities/weapon.dart';
+
+// Pages
 import 'package:new_block/features/agents/presentation/pages/agents_page.dart';
 import 'package:new_block/features/agents/presentation/pages/agent_details_page.dart';
+import 'package:new_block/features/agents/presentation/pages/favorites_page.dart';
 import 'package:new_block/features/weapons/presentation/pages/weapons_page.dart';
 import 'package:new_block/features/weapons/presentation/pages/weapon_details_page.dart';
+import 'package:new_block/features/maps/presentation/pages/maps_page.dart';
+import 'package:new_block/features/auth/presentation/pages/auth_page.dart';
+import 'package:new_block/features/home/presentation/pages/main_shell_page.dart';
+import 'package:new_block/features/home/presentation/pages/dashboard_page.dart';
+
+// کلیدهای ناوبری برای هر تب
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _shellNavigatorAgentsKey = GlobalKey<NavigatorState>(
+  debugLabel: 'agents',
+);
+final _shellNavigatorWeaponsKey = GlobalKey<NavigatorState>(
+  debugLabel: 'weapons',
+);
+final _shellNavigatorFavoritesKey = GlobalKey<NavigatorState>(
+  debugLabel: 'favorites',
+);
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/login', // ✅ شروع برنامه از صفحه لاگین
-  routes: [
-    GoRoute(path: '/login', builder: (context, state) => const AuthPage()),
-    GoRoute(path: '/', builder: (context, state) => const AgentsPage()),
-    GoRoute(
-      path: '/details',
-      // ✅ استفاده از pageBuilder برای انیمیشن
-      pageBuilder: (context, state) {
-        final agent = state.extra as Agent;
-        return CustomTransitionPage(
-          key: state.pageKey,
-          child: AgentDetailsPage(agent: agent),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            // افکت Fade + Slide برای ورود به صفحه
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.1), // از پایین شروع میشه
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              ),
-            );
-          },
-        );
-      },
-    ),
-    GoRoute(path: '/weapons', builder: (context, state) => const WeaponsPage()),
-    GoRoute(
-      path: '/weapon-details',
-      builder: (context, state) {
-        final weapon = state.extra as Weapon;
-        return WeaponDetailsPage(weapon: weapon);
-      },
-    ),
-    GoRoute(path: '/maps', builder: (context, state) => const MapsPage()),
-    GoRoute(
-      path: '/favorites',
-      builder: (context, state) => const FavoritesPage(),
-    ),
-  ],
-  // ✅ این بخش جادویی است: اگر کاربر لاگین نکرده باشد و بخواهد وارد صفحه‌ای شود، به لاگین هدایتش می‌کند
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: '/login',
   redirect: (context, state) {
     final isLoggedIn = FirebaseAuth.instance.currentUser != null;
     final isGoingToLogin = state.matchedLocation == '/login';
 
-    if (!isLoggedIn && !isGoingToLogin) {
-      return '/login'; // هدایت به لاگین
-    }
-    if (isLoggedIn && isGoingToLogin) {
-      return '/'; // اگر لاگین بود و توی صفحه لاگین بود، ببرش به خانه
-    }
-    return null; // اجازه عبور بده
+    if (!isLoggedIn && !isGoingToLogin) return '/login';
+    if (isLoggedIn && isGoingToLogin) return '/dashboard';
+    return null;
   },
+  routes: [
+    GoRoute(path: '/login', builder: (context, state) => const AuthPage()),
+
+    // ✅ ساختار Bottom Navigation
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return MainShellPage(navigationShell: navigationShell);
+      },
+      branches: [
+        // تب ۱: خانه
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/dashboard',
+              builder: (context, state) => const DashboardPage(),
+            ),
+          ],
+        ),
+        // تب ۲: ایجنت‌ها
+        StatefulShellBranch(
+          navigatorKey: _shellNavigatorAgentsKey,
+          routes: [
+            GoRoute(
+              path: '/agents',
+              builder: (context, state) => const AgentsPage(),
+              routes: [
+                GoRoute(
+                  path: 'details',
+                  parentNavigatorKey: _rootNavigatorKey, // تمام صفحه باز بشه
+                  builder: (context, state) {
+                    final agent = state.extra as Agent;
+                    return AgentDetailsPage(agent: agent);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        // تب ۳: سلاح‌ها
+        StatefulShellBranch(
+          navigatorKey: _shellNavigatorWeaponsKey,
+          routes: [
+            GoRoute(
+              path: '/weapons',
+              builder: (context, state) => const WeaponsPage(),
+              routes: [
+                GoRoute(
+                  path: 'details',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) {
+                    final weapon = state.extra as Weapon;
+                    return WeaponDetailsPage(weapon: weapon);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        // تب ۴: علاقه‌مندی‌ها
+        StatefulShellBranch(
+          navigatorKey: _shellNavigatorFavoritesKey,
+          routes: [
+            GoRoute(
+              path: '/favorites',
+              builder: (context, state) => const FavoritesPage(),
+            ),
+          ],
+        ),
+      ],
+    ),
+
+    // Maps (خارج از Bottom Nav، از توی صفحه ایجنت‌ها باز میشه)
+    GoRoute(
+      path: '/maps',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const MapsPage(),
+    ),
+  ],
 );

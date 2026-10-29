@@ -41,31 +41,6 @@ class _AgentsPageState extends State<AgentsPage> {
             ),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.star, color: Colors.white),
-            onPressed: () => context.push('/favorites'),
-            tooltip: 'علاقه‌مندی‌ها',
-          ),
-          IconButton(
-            icon: const Icon(Icons.gps_fixed, color: Colors.white),
-            onPressed: () => context.push('/weapons'),
-            tooltip: 'سلاح‌ها',
-          ),
-          IconButton(
-            icon: const Icon(Icons.map, color: Colors.white),
-            onPressed: () => context.push('/maps'),
-            tooltip: 'نقشه‌ها',
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            tooltip: 'خروج',
-            onPressed: () {
-              context.read<AuthBloc>().add(const SignOutRequested());
-              context.go('/login');
-            },
-          ),
-        ],
       ),
       body: BlocBuilder<AgentsBloc, AgentsState>(
         builder: (context, state) {
@@ -89,9 +64,8 @@ class _AgentsPageState extends State<AgentsPage> {
                   itemBuilder: (context, index) {
                     final agent = agents[index];
                     return GestureDetector(
-                          onTap: () {
-                            context.push('/details', extra: agent);
-                          },
+                          onTap: () =>
+                              context.go('/agents/details', extra: agent),
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.grey[900],
