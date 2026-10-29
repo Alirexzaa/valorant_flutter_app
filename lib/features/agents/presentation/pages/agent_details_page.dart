@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_event.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_state.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class AgentDetailsPage extends StatelessWidget {
   final Agent agent;
@@ -38,16 +39,24 @@ class AgentDetailsPage extends StatelessWidget {
                 );
               }
               return IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.star : Icons.star_border_outlined,
-                  color: isFavorite ? Colors.yellow : Colors.white,
-                ),
-                onPressed: () {
-                  context.read<AgentsBloc>().add(
-                    ToggleFavoriteEvent(agent.id, !isFavorite),
-                  );
-                },
-              );
+                    icon: Icon(
+                      isFavorite ? Icons.star : Icons.star_border_outlined,
+                      color: isFavorite ? Colors.yellow : Colors.white,
+                    ),
+                    onPressed: () {
+                      context.read<AgentsBloc>().add(
+                        ToggleFavoriteEvent(agent.id, !isFavorite),
+                      );
+                    },
+                  )
+                  .animate(target: isFavorite ? 1 : 0)
+                  .scaleXY(
+                    end: 1.3,
+                    duration: 200.ms,
+                    curve: Curves.easeOutBack,
+                  )
+                  .then()
+                  .scaleXY(end: 1.0, duration: 200.ms);
             },
           ),
         ],

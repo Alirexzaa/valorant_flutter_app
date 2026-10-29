@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:new_block/features/agents/domain/entities/agent.dart';
@@ -17,9 +18,26 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/', builder: (context, state) => const AgentsPage()),
     GoRoute(
       path: '/details',
-      builder: (context, state) {
+      // ✅ استفاده از pageBuilder برای انیمیشن
+      pageBuilder: (context, state) {
         final agent = state.extra as Agent;
-        return AgentDetailsPage(agent: agent);
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: AgentDetailsPage(agent: agent),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // افکت Fade + Slide برای ورود به صفحه
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.1), // از پایین شروع میشه
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
+            );
+          },
+        );
       },
     ),
     GoRoute(path: '/weapons', builder: (context, state) => const WeaponsPage()),
