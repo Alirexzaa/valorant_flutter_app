@@ -49,6 +49,12 @@ import 'package:new_block/features/weapons/data/repositories/weapons_repository_
 import 'package:new_block/features/weapons/domain/repositories/weapons_repository.dart';
 import 'package:new_block/features/weapons/domain/usecases/get_weapons_usecase.dart';
 import 'package:new_block/features/weapons/presentation/bloc/weapons_bloc.dart';
+import 'package:new_block/features/weapons/data/datasources/weapon_favorites_remote_data_source.dart';
+import 'package:new_block/features/weapons/data/datasources/weapon_favorites_remote_data_source_impl.dart';
+import 'package:new_block/features/weapons/data/repositories/weapon_favorites_repository_impl.dart';
+import 'package:new_block/features/weapons/domain/repositories/weapon_favorites_repository.dart';
+import 'package:new_block/features/weapons/domain/usecases/get_favorite_weapon_ids_usecase.dart';
+import 'package:new_block/features/weapons/domain/usecases/toggle_weapon_favorite_usecase.dart';
 
 final sl = GetIt.instance;
 
@@ -88,7 +94,13 @@ Future<void> init() async {
   // ═══════════════════════════════════════════
   // Weapons Feature
   // ═══════════════════════════════════════════
-  sl.registerFactory(() => WeaponsBloc(getWeaponsUseCase: sl()));
+  sl.registerFactory(
+    () => WeaponsBloc(
+      getWeaponsUseCase: sl(),
+      toggleFavoriteUseCase: sl(),
+      getFavoriteIdsUseCase: sl(),
+    ),
+  );
   sl.registerLazySingleton(() => GetWeaponsUseCase(sl()));
   sl.registerLazySingleton<WeaponsRepository>(
     () => WeaponsRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()),
@@ -98,6 +110,19 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<WeaponsLocalDataSource>(
     () => WeaponsLocalDataSourceImpl(sharedPreferences: sl()),
+  );
+  sl.registerLazySingleton(() => ToggleWeaponFavoriteUseCase(sl()));
+  sl.registerLazySingleton(() => GetFavoriteWeaponIdsUseCase(sl()));
+
+  sl.registerLazySingleton<WeaponFavoritesRepository>(
+    () => WeaponFavoritesRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<WeaponFavoritesRemoteDataSource>(
+    () => WeaponFavoritesRemoteDataSourceImpl(
+      firestore: sl(),
+      firebaseAuth: sl(),
+    ),
   );
 
   // ═══════════════════════════════════════════

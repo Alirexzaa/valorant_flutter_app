@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_block/features/weapons/presentation/bloc/weapons_bloc.dart';
+import 'package:new_block/features/weapons/presentation/bloc/weapons_event.dart';
+import 'package:new_block/features/weapons/presentation/bloc/weapons_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:new_block/features/weapons/domain/entities/weapon.dart';
 
@@ -64,6 +68,27 @@ class _WeaponDetailsPageState extends State<WeaponDetailsPage> {
             ),
           ),
         ),
+        actions: [
+          BlocBuilder<WeaponsBloc, WeaponsState>(
+            builder: (context, state) {
+              bool isFavorite = false;
+              if (state is WeaponsSuccess) {
+                isFavorite = state.favoriteIds.contains(widget.weapon.id);
+              }
+              return IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.star : Icons.star_border,
+                  color: isFavorite ? Colors.yellow : Colors.white,
+                ),
+                onPressed: () {
+                  context.read<WeaponsBloc>().add(
+                    ToggleWeaponFavoriteEvent(widget.weapon.id, !isFavorite),
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(

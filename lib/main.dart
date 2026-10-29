@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
 import 'package:new_block/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:new_block/features/weapons/presentation/bloc/weapons_bloc.dart';
 
 import 'package:new_block/firebase_options.dart';
 import 'package:new_block/core/injection_container.dart' as di;
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (_) => di.sl<WeaponsBloc>()),
         BlocProvider(create: (_) => di.sl<AuthBloc>()),
         BlocProvider(create: (_) => di.sl<AgentsBloc>()), // ✅ اضافه شد
       ],

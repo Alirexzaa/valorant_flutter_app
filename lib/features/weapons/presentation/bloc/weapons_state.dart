@@ -8,6 +8,9 @@ part 'weapons_state.freezed.dart';
 sealed class WeaponsState with _$WeaponsState {
   const factory WeaponsState.initial() = WeaponsInitial;
   const factory WeaponsState.loading() = WeaponsLoading;
-  const factory WeaponsState.success(List<Weapon> weapons) = WeaponsSuccess;
+  const factory WeaponsState.success(
+    List<Weapon> weapons,
+    List<String> favoriteIds,
+  ) = WeaponsSuccess;
   const factory WeaponsState.error(String message) = WeaponsError;
 }

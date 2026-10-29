@@ -2,149 +2,191 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:new_block/core/widgets/shimmer_loading_widget.dart';
 
 import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
-import 'package:new_block/features/agents/presentation/bloc/agents_event.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_state.dart';
+import 'package:new_block/features/weapons/presentation/bloc/weapons_bloc.dart';
+import 'package:new_block/features/weapons/presentation/bloc/weapons_state.dart';
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'علاقه‌مندی‌ها',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.transparent,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.redAccent.shade700, Colors.redAccent.shade200],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'علاقه‌مندی‌ها',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: Colors.transparent,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.redAccent.shade700, Colors.redAccent.shade200],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
           ),
+          bottom: const TabBar(
+            indicatorColor: Colors.yellow,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            tabs: [
+              Tab(icon: Icon(Icons.people), text: 'ایجنت‌ها'),
+              Tab(icon: Icon(Icons.gps_fixed), text: 'سلاح‌ها'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [_FavoriteAgentsTab(), _FavoriteWeaponsTab()],
         ),
       ),
-      body: BlocBuilder<AgentsBloc, AgentsState>(
-        builder: (context, state) {
-          if (state is AgentsLoading) {
-            return const ShimmerLoadingWidget();
-          }
+    );
+  }
+}
 
-          if (state is AgentsSuccess) {
-            final favoriteAgents = state.agents
-                .where((agent) => state.favoriteIds.contains(agent.id))
-                .toList();
+// ═══════════════════════════════════════════
+// تب ایجنت‌های محبوب
+// ═══════════════════════════════════════════
+class _FavoriteAgentsTab extends StatelessWidget {
+  const _FavoriteAgentsTab();
 
-            // ✅ حالت خالی بسیار زیبا (Empty State)
-            if (favoriteAgents.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.star_border, size: 100, color: Colors.grey[700]),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'هنوز هیچ ایجنتی رو ستاره نکردی!',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AgentsBloc, AgentsState>(
+      builder: (context, state) {
+        if (state is AgentsSuccess) {
+          final favorites = state.agents
+              .where((a) => state.favoriteIds.contains(a.id))
+              .toList();
+          if (favorites.isEmpty)
+            return const Center(child: Text('هیچ ایجنتی ستاره نشده!'));
+
+          return GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+            ),
+            itemCount: favorites.length,
+            itemBuilder: (context, index) {
+              final agent = favorites[index];
+              return GestureDetector(
+                onTap: () => context.push('/agents/details', extra: agent),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[900],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.yellow.withValues(alpha: 0.5),
+                      width: 2,
                     ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
+                  ),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12),
+                          ),
+                          child: CachedNetworkImage(
+                            imageUrl: agent.imageUrl,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                          ),
                         ),
                       ),
-                      onPressed: () => context.pop(),
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      label: const Text(
-                        'برگرد به لیست ایجنت‌ها',
-                        style: TextStyle(color: Colors.white),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          agent.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
-            }
+            },
+          );
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+  }
+}
 
-            // ✅ لیست با قابلیت Pull-to-Refresh
-            return RefreshIndicator(
-              color: Colors.redAccent,
-              onRefresh: () async {
-                context.read<AgentsBloc>().add(const FetchAgentsEvent());
-              },
-              child: GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: favoriteAgents.length,
-                itemBuilder: (context, index) {
-                  final agent = favoriteAgents[index];
-                  return GestureDetector(
-                    onTap: () => context.push('/details', extra: agent),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[900],
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.yellow.withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        border: Border.all(
-                          color: Colors.yellow.withValues(alpha: 0.5),
-                          width: 2,
+// ═══════════════════════════════════════════
+// تب سلاح‌های محبوب
+// ═══════════════════════════════════════════
+class _FavoriteWeaponsTab extends StatelessWidget {
+  const _FavoriteWeaponsTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<WeaponsBloc, WeaponsState>(
+      builder: (context, state) {
+        if (state is WeaponsSuccess) {
+          final favorites = state.weapons
+              .where((w) => state.favoriteIds.contains(w.id))
+              .toList();
+          if (favorites.isEmpty)
+            return const Center(child: Text('هیچ سلاحی ستاره نشده!'));
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: favorites.length,
+            itemBuilder: (context, index) {
+              final weapon = favorites[index];
+              return GestureDetector(
+                onTap: () => context.push('/weapons/details', extra: weapon),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[900],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.yellow.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 100,
+                        height: 60,
+                        child: CachedNetworkImage(
+                          imageUrl: weapon.imageUrl,
+                          fit: BoxFit.contain,
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(14),
-                              ),
-                              child: CachedNetworkImage(
-                                imageUrl: agent.imageUrl,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                errorWidget: (context, url, error) =>
-                                    const Icon(Icons.error),
-                              ),
-                            ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          weapon.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              agent.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            );
-          }
-          return const Center(child: Text('در حال بارگذاری...'));
-        },
-      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }
+        if (state is WeaponsInitial)
+          return const Center(child: Text('در حال دریافت اطلاعات...'));
+        if (state is WeaponsError) return Center(child: Text(state.message));
+        return const Center(child: CircularProgressIndicator());
+      },
     );
   }
 }

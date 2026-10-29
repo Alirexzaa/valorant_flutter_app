@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import 'package:new_block/core/injection_container.dart';
 import 'package:new_block/core/widgets/error_view_widget.dart';
 import 'package:new_block/features/weapons/domain/entities/weapon.dart';
 import 'package:new_block/features/weapons/presentation/bloc/weapons_bloc.dart';
@@ -31,65 +30,66 @@ class _WeaponsPageState extends State<WeaponsPage> {
     'Heavy',
     'Melee',
   ];
+  @override
+  void initState() {
+    super.initState();
+    // ✅ به محض باز شدن صفحه، دیتا رو فچ کن
+    context.read<WeaponsBloc>().add(const FetchWeaponsEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<WeaponsBloc>()..add(const FetchWeaponsEvent()),
-      child: Builder(
-        builder: (context) {
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text(
-                'Valorant Weapons',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              backgroundColor: Colors.transparent,
-              flexibleSpace: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.redAccent.shade700,
-                      Colors.redAccent.shade200,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+    return Builder(
+      builder: (context) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              'Valorant Weapons',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.transparent,
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.redAccent.shade700,
+                    Colors.redAccent.shade200,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
             ),
-            body: BlocBuilder<WeaponsBloc, WeaponsState>(
-              builder: (context, state) {
-                return switch (state) {
-                  WeaponsInitial() => const Center(
-                    child: Text('آماده شروع...'),
-                  ),
-                  WeaponsLoading() => const Center(
-                    child: CircularProgressIndicator(color: Colors.redAccent),
-                  ),
+          ),
+          body: BlocBuilder<WeaponsBloc, WeaponsState>(
+            builder: (context, state) {
+              return switch (state) {
+                WeaponsInitial() => const Center(child: Text('آماده شروع...')),
+                WeaponsLoading() => const Center(
+                  child: CircularProgressIndicator(color: Colors.redAccent),
+                ),
 
-                  WeaponsSuccess(weapons: final weapons) => Column(
-                    children: [
-                      // ✅ نوار فیلتر افقی
-                      _buildFilterBar(),
+                WeaponsSuccess(weapons: final weapons) => Column(
+                  children: [
+                    // ✅ نوار فیلتر افقی
+                    _buildFilterBar(),
 
-                      // لیست سلاح‌ها
-                      Expanded(child: _buildWeaponsList(weapons)),
-                    ],
-                  ),
+                    // لیست سلاح‌ها
+                    Expanded(child: _buildWeaponsList(weapons)),
+                  ],
+                ),
 
-                  WeaponsError(message: final msg) => ErrorViewWidget(
-                    message: msg,
-                    onRetry: () => context.read<WeaponsBloc>().add(
-                      const FetchWeaponsEvent(),
-                    ),
+                WeaponsError(message: final msg) => ErrorViewWidget(
+                  message: msg,
+                  onRetry: () => context.read<WeaponsBloc>().add(
+                    const FetchWeaponsEvent(),
                   ),
-                };
-              },
-            ),
-          );
-        },
-      ),
+                ),
+              };
+            },
+          ),
+        );
+      },
     );
   }
 
