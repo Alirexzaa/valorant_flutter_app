@@ -1,0 +1,12 @@
+{
+  "appTitle": "Aplikasi Valorant",
+  "home": "Beranda",
+  "agents": "Agen",
+  "weapons": "Senjata",
+  "maps": "Peta",
+  "favorites": "Favorit",
+  "welcome": "Selamat datang di Aplikasi Valorant",
+  "signOut": "Keluar",
+  "noFavorites": "Belum ada favorit!",
+  "loading": "Memuat..."
+}

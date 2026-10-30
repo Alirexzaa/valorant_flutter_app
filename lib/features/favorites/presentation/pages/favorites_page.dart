@@ -7,19 +7,22 @@ import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
 import 'package:new_block/features/agents/presentation/bloc/agents_state.dart';
 import 'package:new_block/features/weapons/presentation/bloc/weapons_bloc.dart';
 import 'package:new_block/features/weapons/presentation/bloc/weapons_state.dart';
+import 'package:new_block/l10n/app_localizations.dart';
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
-            'علاقه‌مندی‌ها',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(
+            t.favorites,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           backgroundColor: Colors.transparent,
           flexibleSpace: Container(
@@ -31,13 +34,13 @@ class FavoritesPage extends StatelessWidget {
               ),
             ),
           ),
-          bottom: const TabBar(
+          bottom: TabBar(
             indicatorColor: Colors.yellow,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
             tabs: [
-              Tab(icon: Icon(Icons.people), text: 'ایجنت‌ها'),
-              Tab(icon: Icon(Icons.gps_fixed), text: 'سلاح‌ها'),
+              Tab(icon: const Icon(Icons.people), text: t.agents),
+              Tab(icon: const Icon(Icons.gps_fixed), text: t.weapons),
             ],
           ),
         ),
@@ -57,14 +60,15 @@ class _FavoriteAgentsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return BlocBuilder<AgentsBloc, AgentsState>(
       builder: (context, state) {
         if (state is AgentsSuccess) {
           final favorites = state.agents
               .where((a) => state.favoriteIds.contains(a.id))
               .toList();
-          if (favorites.isEmpty)
-            return const Center(child: Text('هیچ ایجنتی ستاره نشده!'));
+          if (favorites.isEmpty) return Center(child: Text(t.noFavorites));
 
           return GridView.builder(
             padding: const EdgeInsets.all(16),
@@ -129,14 +133,15 @@ class _FavoriteWeaponsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return BlocBuilder<WeaponsBloc, WeaponsState>(
       builder: (context, state) {
         if (state is WeaponsSuccess) {
           final favorites = state.weapons
               .where((w) => state.favoriteIds.contains(w.id))
               .toList();
-          if (favorites.isEmpty)
-            return const Center(child: Text('هیچ سلاحی ستاره نشده!'));
+          if (favorites.isEmpty) return Center(child: Text(t.noFavorites));
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -182,9 +187,6 @@ class _FavoriteWeaponsTab extends StatelessWidget {
             },
           );
         }
-        if (state is WeaponsInitial)
-          return const Center(child: Text('در حال دریافت اطلاعات...'));
-        if (state is WeaponsError) return Center(child: Text(state.message));
         return const Center(child: CircularProgressIndicator());
       },
     );

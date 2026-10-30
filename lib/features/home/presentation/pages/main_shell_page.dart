@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:new_block/l10n/app_localizations.dart'; // ✅ ایمپورت برای ترجمه
 
 class MainShellPage extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -8,6 +9,14 @@ class MainShellPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ گرفتن آبجکت ترجمه
+    // به جای این:
+    // final t = AppLocalizations.of(context)!;
+
+    // ✅ این رو بنویس:
+    final t = AppLocalizations.of(context) ?? AppLocalizations.of(context)!;
+    // (یا حتی بهتر: اگر null بود، یه زبان پیش‌فرض مثل انگلیسی رو لود کن)
+
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
@@ -15,37 +24,36 @@ class MainShellPage extends StatelessWidget {
         onDestinationSelected: (index) {
           navigationShell.goBranch(
             index,
-            // اگر کاربر روی همون تب فعلی کلیک کرد، بره به حالت اولیه
             initialLocation: index == navigationShell.currentIndex,
           );
         },
         backgroundColor: const Color(0xFF0F1923),
         indicatorColor: Colors.redAccent.withValues(alpha: 0.3),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined, color: Colors.white70),
-            selectedIcon: Icon(Icons.home, color: Colors.redAccent),
-            label: 'خانه',
+            icon: const Icon(Icons.home_outlined, color: Colors.white70),
+            selectedIcon: const Icon(Icons.home, color: Colors.redAccent),
+            label: t.home,
           ),
           NavigationDestination(
-            icon: Icon(Icons.people_outline, color: Colors.white70),
-            selectedIcon: Icon(Icons.people, color: Colors.redAccent),
-            label: 'ایجنت‌ها',
+            icon: const Icon(Icons.people_outline, color: Colors.white70),
+            selectedIcon: const Icon(Icons.people, color: Colors.redAccent),
+            label: t.agents,
           ),
           NavigationDestination(
-            icon: Icon(Icons.gps_fixed_outlined, color: Colors.white70),
-            selectedIcon: Icon(Icons.gps_fixed, color: Colors.redAccent),
-            label: 'سلاح‌ها',
+            icon: const Icon(Icons.gps_fixed_outlined, color: Colors.white70),
+            selectedIcon: const Icon(Icons.gps_fixed, color: Colors.redAccent),
+            label: t.weapons,
           ),
           NavigationDestination(
-            icon: Icon(Icons.map_outlined, color: Colors.white70),
-            selectedIcon: Icon(Icons.map, color: Colors.redAccent),
-            label: 'نقشه‌ها',
+            icon: const Icon(Icons.map_outlined, color: Colors.white70),
+            selectedIcon: const Icon(Icons.map, color: Colors.redAccent),
+            label: t.maps,
           ),
           NavigationDestination(
-            icon: Icon(Icons.star_border, color: Colors.white70),
-            selectedIcon: Icon(Icons.star, color: Colors.redAccent),
-            label: 'علاقه‌مندی',
+            icon: const Icon(Icons.star_border, color: Colors.white70),
+            selectedIcon: const Icon(Icons.star, color: Colors.redAccent),
+            label: t.favorites,
           ),
         ],
       ),

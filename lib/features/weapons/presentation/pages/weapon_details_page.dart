@@ -42,9 +42,8 @@ class _WeaponDetailsPageState extends State<WeaponDetailsPage> {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('خطا در باز کردن ویدیو')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Error opening video')));
       }
     }
   }
@@ -164,7 +163,7 @@ class _WeaponDetailsPageState extends State<WeaponDetailsPage> {
                           size: 28,
                         ),
                         label: const Text(
-                          'پخش ویدیوی اسکین',
+                          'Skin Video Playback',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -177,7 +176,7 @@ class _WeaponDetailsPageState extends State<WeaponDetailsPage> {
                   const Divider(color: Colors.white24, height: 40),
 
                   const Text(
-                    'گالری اسکین‌ها',
+                    'Skins Gallery',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,

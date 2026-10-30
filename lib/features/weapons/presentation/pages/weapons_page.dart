@@ -64,7 +64,9 @@ class _WeaponsPageState extends State<WeaponsPage> {
           body: BlocBuilder<WeaponsBloc, WeaponsState>(
             builder: (context, state) {
               return switch (state) {
-                WeaponsInitial() => const Center(child: Text('آماده شروع...')),
+                WeaponsInitial() => const Center(
+                  child: Text('Ready to start...'),
+                ),
                 WeaponsLoading() => const Center(
                   child: CircularProgressIndicator(color: Colors.redAccent),
                 ),
@@ -151,7 +153,7 @@ class _WeaponsPageState extends State<WeaponsPage> {
     if (filteredWeapons.isEmpty) {
       return const Center(
         child: Text(
-          'سلاحی در این دسته‌بندی وجود ندارد.',
+          'There are no weapons in this category.',
           style: TextStyle(color: Colors.grey),
         ),
       );

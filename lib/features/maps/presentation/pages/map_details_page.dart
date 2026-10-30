@@ -55,7 +55,7 @@ class MapDetailsPage extends StatelessWidget {
               child: Column(
                 children: [
                   const Text(
-                    'نقشه تاکتیکی',
+                    'Tactical Map',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -64,7 +64,7 @@ class MapDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    '(برای بزرگنمایی، با دو انگشت نقشه را باز کنید)',
+                    '(To zoom in, spread two fingers on the map)',
                     style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 12),
@@ -91,7 +91,7 @@ class MapDetailsPage extends StatelessWidget {
                               child: CircularProgressIndicator(),
                             ),
                             errorWidget: (context, url, error) =>
-                                const Center(child: Text('نقشه در دسترس نیست')),
+                                const Center(child: Text('Map not available')),
                           ),
                         ),
                       ),
@@ -122,7 +122,7 @@ class MapDetailsPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'موقعیت جغرافیایی در دنیای واقعی',
+                            'Geographical location in the real world',
                             style: TextStyle(color: Colors.grey, fontSize: 12),
                           ),
                           const SizedBox(height: 4),
@@ -151,7 +151,7 @@ class MapDetailsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'نقاط استراتژیک (Callouts)',
+                    'Strategic Points (Callouts)',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_block/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:new_block/features/auth/presentation/bloc/auth_event.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_block/core/language_cubit.dart';
+import 'package:new_block/features/agents/presentation/bloc/agents_bloc.dart';
+import 'package:new_block/features/agents/presentation/bloc/agents_event.dart';
+import 'package:new_block/features/weapons/presentation/bloc/weapons_bloc.dart';
+import 'package:new_block/features/weapons/presentation/bloc/weapons_event.dart';
+import 'package:new_block/l10n/app_localizations.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Valorant App',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          t.appTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
         flexibleSpace: Container(
@@ -26,8 +34,35 @@ class DashboardPage extends StatelessWidget {
           ),
         ),
         actions: [
+          // دکمه تغییر زبان
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language, color: Colors.white),
+            tooltip: 'Select Language',
+            onSelected: (String langCode) {
+              context.read<LanguageCubit>().changeLanguage(langCode);
+              // فچ مجدد دیتا
+              context.read<AgentsBloc>().add(const FetchAgentsEvent());
+              context.read<WeaponsBloc>().add(const FetchWeaponsEvent());
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem(value: 'en-US', child: Text('English')),
+                const PopupMenuItem(value: 'ar-AE', child: Text('العربية')),
+                const PopupMenuItem(value: 'tr-TR', child: Text('Türkçe')),
+                const PopupMenuItem(value: 'ru-RU', child: Text('Русский')),
+                const PopupMenuItem(value: 'fr-FR', child: Text('Français')),
+                const PopupMenuItem(value: 'de-DE', child: Text('Deutsch')),
+                const PopupMenuItem(value: 'es-ES', child: Text('Español')),
+                const PopupMenuItem(value: 'ja-JP', child: Text('日本語')),
+                const PopupMenuItem(value: 'ko-KR', child: Text('한국어')),
+                const PopupMenuItem(value: 'zh-CN', child: Text('中文')),
+              ];
+            },
+          ),
+          // دکمه خروج
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
+            tooltip: t.signOut,
             onPressed: () {
               context.read<AuthBloc>().add(const SignOutRequested());
               context.go('/login');
@@ -45,22 +80,17 @@ class DashboardPage extends StatelessWidget {
               color: Colors.redAccent,
             ),
             const SizedBox(height: 20),
-            const Text(
-              'به اپ والورانت خوش آمدید!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              t.welcome,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
-            // دکمه‌های میانبر برای رفتن به تب‌ها
-            _buildShortcutButton(
-              context,
-              'مشاهده ایجنت‌ها',
-              Icons.people,
-              '/agents',
-            ),
+            _buildShortcutButton(context, t.agents, Icons.people, '/agents'),
             const SizedBox(height: 12),
             _buildShortcutButton(
               context,
-              'مشاهده سلاح‌ها',
+              t.weapons,
               Icons.gps_fixed,
               '/weapons',
             ),

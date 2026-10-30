@@ -1,0 +1,12 @@
+{
+  "appTitle": "无畏契约 App",
+  "home": "主页",
+  "agents": "特工",
+  "weapons": "武器",
+  "maps": "地图",
+  "favorites": "收藏",
+  "welcome": "欢迎来到无畏契约 App",
+  "signOut": "退出登录",
+  "noFavorites": "还没有收藏！",
+  "loading": "加载中..."
+}

@@ -1,0 +1,12 @@
+{
+  "appTitle": "Application Valorant",
+  "home": "Accueil",
+  "agents": "Agents",
+  "weapons": "Armes",
+  "maps": "Cartes",
+  "favorites": "Favoris",
+  "welcome": "Bienvenue sur l'application Valorant",
+  "signOut": "Se déconnecter",
+  "noFavorites": "Pas encore de favoris !",
+  "loading": "Chargement..."
+}

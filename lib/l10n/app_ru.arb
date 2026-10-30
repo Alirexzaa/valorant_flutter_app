@@ -1,0 +1,12 @@
+{
+  "appTitle": "Приложение Valorant",
+  "home": "Главная",
+  "agents": "Агенты",
+  "weapons": "Оружие",
+  "maps": "Карты",
+  "favorites": "Избранное",
+  "welcome": "Добро пожаловать в приложение Valorant",
+  "signOut": "Выйти",
+  "noFavorites": "Пока нет избранного!",
+  "loading": "Загрузка..."
+}

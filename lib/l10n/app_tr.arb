@@ -1,0 +1,12 @@
+{
+  "appTitle": "Valorant Uygulaması",
+  "home": "Ana Sayfa",
+  "agents": "Ajanlar",
+  "weapons": "Silahlar",
+  "maps": "Haritalar",
+  "favorites": "Favoriler",
+  "welcome": "Valorant Uygulamasına Hoş Geldiniz",
+  "signOut": "Çıkış Yap",
+  "noFavorites": "Henüz favori yok!",
+  "loading": "Yükleniyor..."
+}
